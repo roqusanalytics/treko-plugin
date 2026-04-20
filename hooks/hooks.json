@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if ! curl -sf http://localhost:3456/health >/dev/null 2>&1; then if command -v surfagent >/dev/null 2>&1; then mkdir -p /tmp/surfagent-plugin && nohup surfagent start >/tmp/surfagent-plugin/server.log 2>&1 & disown; echo '[surfagent] starting server in background (logs: /tmp/surfagent-plugin/server.log)'; else echo '[surfagent] CLI not found. Install: npm install -g surfagent'; fi; fi"
+            "command": "[ ! -d \"${CLAUDE_PLUGIN_ROOT}/mcp-server/node_modules\" ] && (cd \"${CLAUDE_PLUGIN_ROOT}/mcp-server\" && npm install --silent >/dev/null 2>&1 && echo '[surfagent] installed MCP SDK dependencies'); if ! curl -sf http://localhost:3456/health >/dev/null 2>&1; then if command -v surfagent >/dev/null 2>&1; then mkdir -p /tmp/surfagent-plugin && nohup surfagent start >/tmp/surfagent-plugin/server.log 2>&1 & disown; echo '[surfagent] starting server in background (logs: /tmp/surfagent-plugin/server.log)'; else echo '[surfagent] CLI not found. Install: npm install -g surfagent'; fi; fi"
           }
         ]
       }
