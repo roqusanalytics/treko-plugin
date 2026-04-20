@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "surfagent",
-      "source": ".",
+      "source": "./",
       "description": "Browser automation for Claude Code via Surfagent — real Chrome control through the Surfagent HTTP API.",
       "version": "1.1.0"
     }
