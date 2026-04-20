@@ -1,0 +1,10 @@
+{
+  "name": "surfagent",
+  "description": "Browser automation for Claude Code via Surfagent — real Chrome control (recon, click, fill, navigate, eval, captcha handling) through the Surfagent HTTP API.",
+  "version": "1.1.0",
+  "author": {
+    "name": "Ventura10"
+  },
+  "homepage": "https://github.com/roqusanalytics/surfagent",
+  "repository": "https://github.com/roqusanalytics/surfagent"
+}
