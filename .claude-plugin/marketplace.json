@@ -1,0 +1,14 @@
+{
+  "name": "surfagent-marketplace",
+  "owner": {
+    "name": "roqusanalytics"
+  },
+  "plugins": [
+    {
+      "name": "surfagent",
+      "source": ".",
+      "description": "Browser automation for Claude Code via Surfagent — real Chrome control through the Surfagent HTTP API.",
+      "version": "1.1.0"
+    }
+  ]
+}
