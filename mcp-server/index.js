@@ -61,7 +61,7 @@ async function ensureServer() {
   autoStartPromise = (async () => {
     if (!trekoInstalled()) {
       throw new Error(
-        "Treko CLI not found. Install it globally:\n  npm install -g treko\n" +
+        "Treko CLI not found. Install it globally:\n  bun install -g treko\n" +
         "Then retry. (Expected on PATH: `treko`.)"
       );
     }

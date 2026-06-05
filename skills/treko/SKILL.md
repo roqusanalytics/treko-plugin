@@ -40,7 +40,7 @@ Use `tabs` first when multiple are open to pick the right one.
 
 | Error text contains | Meaning | Action |
 |---|---|---|
-| `CLI not found` | Treko npm package missing | Tell the user to run `npm install -g treko` |
+| `CLI not found` | Treko npm package missing | Tell the user to run `bun install -g treko` |
 | `did not become healthy ... within` | Server started but never became ready | Suggest checking `/tmp/treko-plugin/server.log`; common causes: Chrome missing, port 3456 taken, permission prompt |
 | `Cannot reach Treko` | Network / socket error to localhost | Call `health` once; if still failing, server likely crashed — retry triggers auto-restart |
 | `HTTP 400: Provide "tab" and one of ...` | Missing required param | Check the tool's schema and supply the missing field |

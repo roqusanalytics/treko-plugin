@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "[ ! -d \"${CLAUDE_PLUGIN_ROOT}/mcp-server/node_modules\" ] && (cd \"${CLAUDE_PLUGIN_ROOT}/mcp-server\" && npm install --silent >/dev/null 2>&1 && echo '[treko] installed MCP SDK dependencies'); if ! curl -sf http://localhost:3456/health >/dev/null 2>&1; then if command -v treko >/dev/null 2>&1; then mkdir -p /tmp/treko-plugin && nohup treko start >/tmp/treko-plugin/server.log 2>&1 & disown; echo '[treko] starting server in background (logs: /tmp/treko-plugin/server.log)'; else echo '[treko] CLI not found. Install: npm install -g treko'; fi; fi"
+            "command": "[ ! -d \"${CLAUDE_PLUGIN_ROOT}/mcp-server/node_modules\" ] && (cd \"${CLAUDE_PLUGIN_ROOT}/mcp-server\" && npm install --silent >/dev/null 2>&1 && echo '[treko] installed MCP SDK dependencies'); if ! curl -sf http://localhost:3456/health >/dev/null 2>&1; then if command -v treko >/dev/null 2>&1; then mkdir -p /tmp/treko-plugin && nohup treko start >/tmp/treko-plugin/server.log 2>&1 & disown; echo '[treko] starting server in background (logs: /tmp/treko-plugin/server.log)'; else echo '[treko] CLI not found. Install: bun install -g treko'; fi; fi"
           }
         ]
       }
