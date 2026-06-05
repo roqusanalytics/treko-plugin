@@ -1,10 +1,10 @@
 {
   "mcpServers": {
-    "surfagent": {
+    "treko": {
       "command": "node",
       "args": ["${CLAUDE_PLUGIN_ROOT}/mcp-server/index.js"],
       "env": {
-        "SURFAGENT_URL": "http://localhost:3456"
+        "TREKO_URL": "http://localhost:3456"
       }
     }
   }

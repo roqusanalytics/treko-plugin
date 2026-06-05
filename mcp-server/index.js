@@ -10,15 +10,15 @@ import { openSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const BASE_URL = process.env.SURFAGENT_URL || "http://localhost:3456";
-const START_TIMEOUT_MS = Number(process.env.SURFAGENT_START_TIMEOUT_MS || 45_000);
-const LOG_DIR = join(tmpdir(), "surfagent-plugin");
+const BASE_URL = process.env.TREKO_URL || "http://localhost:3456";
+const START_TIMEOUT_MS = Number(process.env.TREKO_START_TIMEOUT_MS || 45_000);
+const LOG_DIR = join(tmpdir(), "treko-plugin");
 const LOG_FILE = join(LOG_DIR, "server.log");
 
 let autoStartPromise = null;
 
 function log(...args) {
-  try { console.error("[surfagent-mcp]", ...args); } catch {}
+  try { console.error("[treko-mcp]", ...args); } catch {}
 }
 
 async function checkHealth(timeoutMs = 2000) {
@@ -35,22 +35,22 @@ async function checkHealth(timeoutMs = 2000) {
   }
 }
 
-function surfagentInstalled() {
-  const r = spawnSync("which", ["surfagent"], { encoding: "utf8" });
+function trekoInstalled() {
+  const r = spawnSync("which", ["treko"], { encoding: "utf8" });
   return r.status === 0 && r.stdout.trim().length > 0;
 }
 
 function spawnServer() {
   mkdirSync(LOG_DIR, { recursive: true });
   const out = openSync(LOG_FILE, "a");
-  const child = spawn("surfagent", ["start"], {
+  const child = spawn("treko", ["start"], {
     detached: true,
     stdio: ["ignore", out, out],
     env: process.env,
   });
   child.on("error", (e) => log("spawn error:", e.message));
   child.unref();
-  log(`spawned surfagent start (pid=${child.pid}), logs: ${LOG_FILE}`);
+  log(`spawned treko start (pid=${child.pid}), logs: ${LOG_FILE}`);
   return child.pid;
 }
 
@@ -59,10 +59,10 @@ async function ensureServer() {
   if (autoStartPromise) return autoStartPromise;
 
   autoStartPromise = (async () => {
-    if (!surfagentInstalled()) {
+    if (!trekoInstalled()) {
       throw new Error(
-        "Surfagent CLI not found. Install it globally:\n  npm install -g surfagent\n" +
-        "Then retry. (Expected on PATH: `surfagent`.)"
+        "Treko CLI not found. Install it globally:\n  npm install -g treko\n" +
+        "Then retry. (Expected on PATH: `treko`.)"
       );
     }
 
@@ -74,7 +74,7 @@ async function ensureServer() {
       await new Promise((r) => setTimeout(r, 800));
     }
     throw new Error(
-      `Surfagent did not become healthy on ${BASE_URL} within ${START_TIMEOUT_MS}ms (${lastErr}). ` +
+      `Treko did not become healthy on ${BASE_URL} within ${START_TIMEOUT_MS}ms (${lastErr}). ` +
       `Check logs: ${LOG_FILE}. Common causes: Chrome not installed, port 3456 in use, permission prompt.`
     );
   })().finally(() => {
@@ -91,14 +91,14 @@ async function call(method, path, body) {
   try {
     res = await fetch(`${BASE_URL}${path}`, opts);
   } catch (e) {
-    throw new Error(`Cannot reach Surfagent at ${BASE_URL}${path}: ${e.message}`);
+    throw new Error(`Cannot reach Treko at ${BASE_URL}${path}: ${e.message}`);
   }
   const text = await res.text();
   let data;
   try { data = JSON.parse(text); } catch { data = text; }
   if (!res.ok) {
     const detail = typeof data === "string" ? data : (data.error || JSON.stringify(data));
-    throw new Error(`Surfagent ${method} ${path} returned HTTP ${res.status}: ${detail}`);
+    throw new Error(`Treko ${method} ${path} returned HTTP ${res.status}: ${detail}`);
   }
   return data;
 }
@@ -111,7 +111,7 @@ const tab = {
 const TOOLS = [
   {
     name: "health",
-    description: "Verify the Surfagent API is running and connected to Chrome. Auto-starts the server if not running. Returns status, cdpConnected, tabCount.",
+    description: "Verify the Treko API is running and connected to Chrome. Auto-starts the server if not running. Returns status, cdpConnected, tabCount.",
     inputSchema: { type: "object", properties: {} },
     handler: () => call("GET", "/health"),
   },
@@ -293,7 +293,7 @@ const TOOLS = [
 ];
 
 const server = new Server(
-  { name: "surfagent", version: "1.1.0" },
+  { name: "treko", version: "1.1.0" },
   { capabilities: { tools: {} } }
 );
 
@@ -316,7 +316,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
   try {
     const startInfo = await ensureServer();
     if (startInfo && startInfo.started) {
-      notices.push(`ℹ️ Auto-started Surfagent server (pid=${startInfo.pid}). Chrome may open a new window.`);
+      notices.push(`ℹ️ Auto-started Treko server (pid=${startInfo.pid}). Chrome may open a new window.`);
     }
   } catch (err) {
     return {
@@ -336,7 +336,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
     return { content: [{ type: "text", text }] };
   } catch (err) {
     const hint = /not found|ECONN|fetch failed/i.test(err.message)
-      ? "\n\nHint: the server may have crashed. Call `health` to re-check, or run `surfagent start` manually."
+      ? "\n\nHint: the server may have crashed. Call `health` to re-check, or run `treko start` manually."
       : "";
     return {
       isError: true,

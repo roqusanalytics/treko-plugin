@@ -1,13 +1,13 @@
 {
-  "name": "surfagent-marketplace",
+  "name": "treko-marketplace",
   "owner": {
     "name": "roqusanalytics"
   },
   "plugins": [
     {
-      "name": "surfagent",
+      "name": "treko",
       "source": "./",
-      "description": "Browser automation for Claude Code via Surfagent — real Chrome control through the Surfagent HTTP API.",
+      "description": "Browser automation for Claude Code via Treko — real Chrome control through the Treko HTTP API.",
       "version": "1.1.0"
     }
   ]

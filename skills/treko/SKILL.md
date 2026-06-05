@@ -1,17 +1,17 @@
 ---
-name: surfagent
+name: treko
 description: Use when you need to browse, scrape, or automate real Chrome (with the user's logged-in sessions/cookies) — navigate URLs, click, fill forms, extract content, run JS, dismiss cookie banners, solve captchas. Prefer over Playwright MCP when the task requires the user's real browser state.
 ---
 
-# Surfagent — Real Chrome Automation
+# Treko — Real Chrome Automation
 
-Surfagent controls the user's actual Chrome instance via CDP, so authenticated sessions, cookies, and extensions are available. All tools are exposed as `mcp__surfagent__*`.
+Treko controls the user's actual Chrome instance via CDP, so authenticated sessions, cookies, and extensions are available. All tools are exposed as `mcp__treko__*`.
 
 ## Auto-start behavior
 
 **Do not ask the user to start the server.** Before every tool call the wrapper automatically:
 1. Pings `http://localhost:3456/health`.
-2. If not responding, spawns `surfagent start` in the background and waits up to 45s for it to become healthy.
+2. If not responding, spawns `treko start` in the background and waits up to 45s for it to become healthy.
 3. If the CLI is missing or startup fails, returns a structured error with the exact fix.
 
 The first tool call in a cold session may take 5–15s while Chrome launches. Subsequent calls are instant.
@@ -40,9 +40,9 @@ Use `tabs` first when multiple are open to pick the right one.
 
 | Error text contains | Meaning | Action |
 |---|---|---|
-| `CLI not found` | Surfagent npm package missing | Tell the user to run `npm install -g surfagent` |
-| `did not become healthy ... within` | Server started but never became ready | Suggest checking `/tmp/surfagent-plugin/server.log`; common causes: Chrome missing, port 3456 taken, permission prompt |
-| `Cannot reach Surfagent` | Network / socket error to localhost | Call `health` once; if still failing, server likely crashed — retry triggers auto-restart |
+| `CLI not found` | Treko npm package missing | Tell the user to run `npm install -g treko` |
+| `did not become healthy ... within` | Server started but never became ready | Suggest checking `/tmp/treko-plugin/server.log`; common causes: Chrome missing, port 3456 taken, permission prompt |
+| `Cannot reach Treko` | Network / socket error to localhost | Call `health` once; if still failing, server likely crashed — retry triggers auto-restart |
 | `HTTP 400: Provide "tab" and one of ...` | Missing required param | Check the tool's schema and supply the missing field |
 | `Element not found` | `click` selector didn't match | Re-`recon` — DOM may have changed after navigation |
 | `captchas[]` non-empty in `recon` | Page has a captcha | Stop and surface to the user — do NOT try to auto-solve |
@@ -57,7 +57,7 @@ Use `tabs` first when multiple are open to pick the right one.
 
 **Scraping with pagination**: loop `read` → `click` next → `read`, checking `navigated` flag in `click` response.
 
-## When NOT to use Surfagent
+## When NOT to use Treko
 
 - If `mcp__playwright__*` is available and you don't need the user's real session — Playwright is isolated and safer.
 - For one-off HTTP fetches of public pages — use `WebFetch` instead.
