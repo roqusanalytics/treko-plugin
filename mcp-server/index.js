@@ -187,6 +187,24 @@ const TOOLS = [
     handler: (a) => call("POST", "/fill", a),
   },
   {
+    name: "upload",
+    description: "Attach local files to an <input type=\"file\"> via CDP. Works on hidden (display:none) inputs since no native OS picker is involved — the only reliable way to upload files. Provide absolute paths.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        tab,
+        selector: { type: "string", description: "CSS selector for the <input type=\"file\"> element (may be hidden)." },
+        files: {
+          type: "array",
+          description: "Absolute file paths to attach.",
+          items: { type: "string" },
+        },
+      },
+      required: ["selector", "files"],
+    },
+    handler: (a) => call("POST", "/upload", a),
+  },
+  {
     name: "scroll",
     description: "Scroll page and preview newly visible content. direction: 'up'|'down'|'top'|'bottom'.",
     inputSchema: {
