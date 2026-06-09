@@ -27,6 +27,21 @@ The first tool call in a cold session may take 5–15s while Chrome launches. Su
 
 Skip 2–3 for trivial tasks (e.g. reading a known static page).
 
+## Visual tools — `screenshot` and `upload`
+
+**`screenshot`** returns the page as an actual image you can SEE. Reach for it on your own
+judgement whenever text (`recon`/`read`) is not enough:
+- A captcha or visual challenge appears (`recon` reports `captchas[]`) — screenshot, then surface to the user.
+- Canvas / chart / map / image-based UI where DOM text says nothing useful.
+- An action didn't behave as expected and you need to *see* the current state to diagnose.
+- Final visual verification after a flow (confirm a form submitted, a dialog closed).
+Optional `output:"/abs/path.png"` also saves the PNG to disk (debug logs). Don't screenshot
+reflexively — prefer `recon`/`read` for text; screenshot is for the visual cases above.
+
+**`upload`** attaches local files to an `<input type="file">` via CDP — works even on hidden
+(`display:none`) inputs. Use for any file-upload step. Absolute paths:
+`upload { tab, selector, files: ["/abs/a.pdf", "/abs/b.pdf"] }`.
+
 ## Tab targeting
 
 Every tool except `health` and `tabs` accepts a `tab` parameter and **defaults to `"0"`** (first tab) if omitted. Resolution order:
