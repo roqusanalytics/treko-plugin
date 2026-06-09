@@ -205,6 +205,19 @@ const TOOLS = [
     handler: (a) => call("POST", "/upload", a),
   },
   {
+    name: "screenshot",
+    description: "Capture a PNG screenshot of a tab and RETURN IT AS AN IMAGE so you can see the page. Use when text recon/read is not enough: captchas, canvas/visual elements, error diagnosis, or visual verification after an action. Optionally also save to an absolute file path.",
+    returnsImage: true,
+    inputSchema: {
+      type: "object",
+      properties: {
+        tab,
+        output: { type: "string", description: "Optional absolute path to also save the PNG to disk." },
+      },
+    },
+    handler: (a) => call("POST", "/screenshot", a),
+  },
+  {
     name: "scroll",
     description: "Scroll page and preview newly visible content. direction: 'up'|'down'|'top'|'bottom'.",
     inputSchema: {
@@ -349,6 +362,20 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       args.tab = "0";
     }
     const result = await tool.handler(args);
+
+    // Image-returning tools (screenshot): hand back an actual image block so Claude can SEE it.
+    if (tool.returnsImage && result && typeof result === "object" && result.data) {
+      const { data, mimeType, ...meta } = result;
+      const metaText = JSON.stringify(meta, null, 2);
+      const text = notices.length ? `${notices.join("\n")}\n\n${metaText}` : metaText;
+      return {
+        content: [
+          { type: "image", data, mimeType: mimeType || "image/png" },
+          { type: "text", text },
+        ],
+      };
+    }
+
     const payload = typeof result === "string" ? result : JSON.stringify(result, null, 2);
     const text = notices.length ? `${notices.join("\n")}\n\n${payload}` : payload;
     return { content: [{ type: "text", text }] };
