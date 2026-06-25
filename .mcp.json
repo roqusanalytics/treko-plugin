@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "treko": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp-server/index.js"],
+      "env": {
+        "TREKO_URL": "http://localhost:3456"
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "treko-marketplace",
+  "owner": {
+    "name": "roqusanalytics"
+  },
+  "plugins": [
+    {
+      "name": "treko",
+      "source": "./",
+      "description": "Browser automation for Claude Code via Treko — real Chrome control through the Treko HTTP API.",
+      "version": "1.4.0"
+    }
+  ]
+}
