@@ -6,6 +6,24 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.11.0] — 2026-07-05
+
+Point-and-Command becomes usable end-to-end.
+
+### Added
+- **Auto session registration** — on start, the MCP process registers its project (`cwd`)
+  with treko (`TREKO_PROJECT_CWD` to override), so a command the human points at routes
+  back to *this* session/project instead of leaking to another.
+- **`/treko:watch` command** — polls this session's Point-and-Command inbox and executes
+  the requests the human pointed at (navigate to the element, find the file, make the change,
+  verify). Run `/loop 8s /treko:watch` for live watching — the practical "activation", since
+  Claude Code is turn-based and has no inbound push.
+- Skill documents the full flow (corner launcher → point → `inbox`/`watch` → act, with
+  project routing).
+
+### Requires
+- treko server ≥ 1.15.0.
+
 ## [1.10.0] — 2026-07-05
 
 ### Changed

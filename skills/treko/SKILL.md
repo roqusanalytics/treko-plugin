@@ -76,6 +76,22 @@ Use `tabs` first when multiple are open to pick the right one.
 | Full-page "Just a moment…" / "Performing security verification" interstitial (delfi.lt, skelbiu.lt, autoplius.lt) | Cloudflare managed interstitial — checkbox is in a dynamically-named cross-origin iframe selectors can't reach | `screenshot` the page → read the checkbox's **center pixel coords** off the image → `captcha { action: "turnstile", x, y }`. At dpr=1 image pixels = viewport coords. `read` page title to confirm it changed from "Just a moment…". |
 | Image / Arkose / "select all squares" captcha | Hard visual captcha | Stop and surface to the user — do NOT try to auto-solve |
 
+## Point-and-Command (human points, you act)
+
+A corner 🎯 launcher auto-appears on every tab. The human clicks it, points at any element,
+types an instruction, and hits Enter — that command is queued **for this session's tab**.
+Because your MCP process registers its project (cwd) on start, commands route back to the
+session that owns the project the human pointed at.
+
+- **Receive:** call `inbox` — it drains *your* session's queue and returns
+  `{ items:[{command, selector, element, url, rect}], count, project:{cwd, title} }`.
+  If `project.cwd` isn't the repo you're in, don't edit — it belongs to another session.
+- **Act:** for each item, optionally `navigate` to `url` + `screenshot`/`recon` the `selector`
+  to see what they mean, find the file that renders it, make the change, verify.
+- **Live watch:** the `/treko:watch` command does exactly this; run `/loop 8s /treko:watch`
+  so you pick up and execute commands continuously while the human points at things. Claude
+  Code is turn-based, so this loop is what makes it feel "live" — there is no inbound push.
+
 ## Common patterns
 
 **Login flow**: `navigate` → `dismiss` → `recon` → `fill` (with `submit: true`).

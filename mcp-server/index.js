@@ -8,7 +8,7 @@ import {
 import { spawn, spawnSync } from "node:child_process";
 import { openSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, basename } from "node:path";
 import { randomUUID } from "node:crypto";
 
 const BASE_URL = process.env.TREKO_URL || "http://localhost:3456";
@@ -20,6 +20,22 @@ const LOG_FILE = join(LOG_DIR, "server.log");
 // id isolates it to its own Chrome tab — no more cannibalizing tab "0". Override
 // with TREKO_SESSION to share a tab across processes on purpose.
 const SESSION_ID = process.env.TREKO_SESSION || `agent-${randomUUID().slice(0, 8)}`;
+
+// The project this Claude session is working in. Registered with treko so a
+// Point-and-Command the human makes routes back to THIS session/project.
+const PROJECT_CWD = process.env.TREKO_PROJECT_CWD || process.cwd();
+let registered = false;
+async function registerOnce() {
+  if (registered) return;
+  try {
+    const res = await fetch(`${BASE_URL}/session/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session: SESSION_ID, cwd: PROJECT_CWD, title: basename(PROJECT_CWD) }),
+    });
+    if (res.ok) registered = true;
+  } catch { /* server not up yet — retry on next call */ }
+}
 
 let autoStartPromise = null;
 
@@ -417,7 +433,7 @@ const TOOLS = [
 ];
 
 const server = new Server(
-  { name: "treko", version: "1.10.0" },
+  { name: "treko", version: "1.11.0" },
   { capabilities: { tools: {} } }
 );
 
@@ -442,6 +458,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
     if (startInfo && startInfo.started) {
       notices.push(`ℹ️ Auto-started Treko server (pid=${startInfo.pid}). Chrome may open a new window.`);
     }
+    await registerOnce();   // tie this session to its project so Point-and-Command routes back here
   } catch (err) {
     return {
       isError: true,
