@@ -236,6 +236,35 @@ const TOOLS = [
     handler: (a) => call("POST", "/indicator", a),
   },
   {
+    name: "waitfor",
+    description: "Block until a page condition holds, then return immediately — instead of blind sleeps. Provide ONE of: selector (element exists AND visible), text (page contains substring), selector+gone:true (element disappeared), urlChange (current URL differs from the given value), readyState:true (document fully loaded). Returns {matched:true,waitedMs} or {matched:false,timedOut:true,waitedMs}. Use after navigate/click when the next element loads async.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        tab,
+        selector: { type: "string", description: "CSS selector to wait for (appear+visible, or disappear with gone:true)." },
+        text: { type: "string", description: "Substring to wait for in the page text." },
+        gone: { type: "boolean", description: "With selector: wait until it is GONE/hidden instead of present." },
+        urlChange: { type: "string", description: "Wait until window.location.href differs from this value." },
+        readyState: { type: "boolean", description: "Wait until document.readyState === 'complete'." },
+        timeoutMs: { type: "number", description: "Max wait in ms (default 10000)." },
+      },
+    },
+    handler: (a) => call("POST", "/waitfor", a),
+  },
+  {
+    name: "diagnostics",
+    description: "See what's going wrong on a page: buffered JS console errors/warnings, failed network requests (HTTP 4xx/5xx), and uncaught exceptions. Call it after an action misbehaves to diagnose SPA/API failures the DOM doesn't reveal. First call on a tab starts monitoring and returns empty (events accumulate from then on) — so call it, trigger the action, then call again. Set clear:true to drain the buffers.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        tab,
+        clear: { type: "boolean", description: "Drain the buffers after reading." },
+      },
+    },
+    handler: (a) => call("POST", "/diagnostics", a),
+  },
+  {
     name: "scroll",
     description: "Scroll page and preview newly visible content. direction: 'up'|'down'|'top'|'bottom'.",
     inputSchema: {
@@ -345,7 +374,7 @@ const TOOLS = [
 ];
 
 const server = new Server(
-  { name: "treko", version: "1.6.0" },
+  { name: "treko", version: "1.7.0" },
   { capabilities: { tools: {} } }
 );
 

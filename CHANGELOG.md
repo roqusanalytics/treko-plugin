@@ -6,6 +6,19 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.7.0] — 2026-07-05
+
+### Added
+- **`waitfor` tool** — block until a page condition holds (selector appears/disappears,
+  text present, URL changed, or `readyState:complete`) instead of guessing sleeps.
+- **`diagnostics` tool** — surface buffered JS console errors, failed network requests
+  (4xx/5xx), and uncaught exceptions so the agent can diagnose SPA/API failures the DOM
+  doesn't reveal. First call starts monitoring; call again after the action to read.
+
+### Requires
+- treko server ≥ 1.11.0 (adds the connection pool, `/waitfor`, `/diagnostics`, and
+  session-tab reuse in `recon`).
+
 ## [1.6.0] — 2026-06-19
 
 ### Added
