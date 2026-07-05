@@ -236,6 +236,30 @@ const TOOLS = [
     handler: (a) => call("POST", "/indicator", a),
   },
   {
+    name: "commander",
+    description: "Toggle Point-and-Command inspect mode on a tab. When ON, a human watching the treko Chrome window can hover any element (teal highlight + selector chip), click it, type an instruction, and Enter — the command is queued for you. Turn it on, tell the user to point at what they want, then poll `inbox` for their commands. pointer-events are managed so the page is untouched until they act.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        tab,
+        on: { type: "boolean", description: "true to enable inspect mode (default), false to remove it." },
+      },
+    },
+    handler: (a) => call("POST", "/commander", a),
+  },
+  {
+    name: "inbox",
+    description: "Drain the Point-and-Command queue for a tab — the commands the human pointed at and typed while `commander` was on. Returns { items:[{selector, element, command, url, rect, ts}], count }. Each item ties a plain-language instruction to an exact element selector, so you can act on precisely what the user meant. Defaults to your own session tab. Poll this after enabling commander.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        tab,
+        drain: { type: "boolean", description: "Clear the queue after reading (default true). false to peek." },
+      },
+    },
+    handler: (a) => call("POST", "/inbox/poll", a),
+  },
+  {
     name: "act",
     description: "Run several treko ops in ONE call against the same tab (one reused connection) — faster and atomic for multi-step flows like login. steps is an ordered array of { op, ...params } where op is any of: navigate, waitfor, fill, click, read, scroll, type, eval, dispatch, screenshot, upload, recon, dismiss, captcha, diagnostics (same params as the standalone tool, minus tab). By default stops at the first failing step (a timed-out waitfor, a click that found nothing, etc.) and returns what ran; set stopOnError:false to run them all. Returns { results:[{op,ok,data|error}], completed, stoppedAt? }. Prefer this over many separate calls when the steps are a known sequence.",
     inputSchema: {
@@ -392,7 +416,7 @@ const TOOLS = [
 ];
 
 const server = new Server(
-  { name: "treko", version: "1.8.0" },
+  { name: "treko", version: "1.9.0" },
   { capabilities: { tools: {} } }
 );
 

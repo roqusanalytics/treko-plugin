@@ -6,6 +6,18 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.9.0] — 2026-07-05
+
+### Added
+- **`commander` tool** — toggle Point-and-Command inspect mode on a tab. The human points
+  at any element in the treko Chrome window and types an instruction; it's queued for the agent.
+- **`inbox` tool** — drain those commands (each ties a plain-language instruction to an exact
+  element selector). Defaults to the agent's own session tab. Enable `commander`, ask the user
+  to point, then poll `inbox`.
+
+### Requires
+- treko server ≥ 1.13.0.
+
 ## [1.8.0] — 2026-07-05
 
 ### Added
