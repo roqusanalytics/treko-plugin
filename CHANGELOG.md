@@ -6,6 +6,16 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.10.0] — 2026-07-05
+
+### Changed
+- **`commander` tool** now documents the auto-appearing corner launcher (the human can
+  self-activate Point-and-Command from the bottom-right button — you rarely need to call
+  the tool) and adds an `active` param to start straight in inspect mode.
+
+### Requires
+- treko server ≥ 1.14.0.
+
 ## [1.9.0] — 2026-07-05
 
 ### Added

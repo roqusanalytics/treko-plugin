@@ -237,12 +237,13 @@ const TOOLS = [
   },
   {
     name: "commander",
-    description: "Toggle Point-and-Command inspect mode on a tab. When ON, a human watching the treko Chrome window can hover any element (teal highlight + selector chip), click it, type an instruction, and Enter — the command is queued for you. Turn it on, tell the user to point at what they want, then poll `inbox` for their commands. pointer-events are managed so the page is untouched until they act.",
+    description: "Point-and-Command. A corner launcher button ('🎯 Point & Command', bottom-right) auto-appears whenever treko navigates a tab, so the human can activate it themselves — you usually don't need to call this. Use it to force the overlay on/off, or pass active:true to start straight in inspect mode. When active, the human hovers any element (teal highlight + selector chip), clicks it, types an instruction, Enter — the command is queued; poll `inbox` to receive it. pointer-events are managed so the page is untouched until they act.",
     inputSchema: {
       type: "object",
       properties: {
         tab,
-        on: { type: "boolean", description: "true to enable inspect mode (default), false to remove it." },
+        on: { type: "boolean", description: "true to (re)inject the launcher (default), false to remove it entirely." },
+        active: { type: "boolean", description: "Start straight in inspect mode instead of dormant (default false — just the launcher shows)." },
       },
     },
     handler: (a) => call("POST", "/commander", a),
@@ -416,7 +417,7 @@ const TOOLS = [
 ];
 
 const server = new Server(
-  { name: "treko", version: "1.9.0" },
+  { name: "treko", version: "1.10.0" },
   { capabilities: { tools: {} } }
 );
 
