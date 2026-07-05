@@ -236,6 +236,24 @@ const TOOLS = [
     handler: (a) => call("POST", "/indicator", a),
   },
   {
+    name: "act",
+    description: "Run several treko ops in ONE call against the same tab (one reused connection) — faster and atomic for multi-step flows like login. steps is an ordered array of { op, ...params } where op is any of: navigate, waitfor, fill, click, read, scroll, type, eval, dispatch, screenshot, upload, recon, dismiss, captcha, diagnostics (same params as the standalone tool, minus tab). By default stops at the first failing step (a timed-out waitfor, a click that found nothing, etc.) and returns what ran; set stopOnError:false to run them all. Returns { results:[{op,ok,data|error}], completed, stoppedAt? }. Prefer this over many separate calls when the steps are a known sequence.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        tab,
+        steps: {
+          type: "array",
+          description: "Ordered ops, e.g. [{op:'navigate',url:'...'},{op:'waitfor',selector:'#email'},{op:'fill',fields:[...]},{op:'click',text:'Login'}].",
+          items: { type: "object", properties: { op: { type: "string" } }, required: ["op"] },
+        },
+        stopOnError: { type: "boolean", description: "Stop at the first failing step (default true). false runs every step." },
+      },
+      required: ["steps"],
+    },
+    handler: (a) => call("POST", "/act", a),
+  },
+  {
     name: "waitfor",
     description: "Block until a page condition holds, then return immediately — instead of blind sleeps. Provide ONE of: selector (element exists AND visible), text (page contains substring), selector+gone:true (element disappeared), urlChange (current URL differs from the given value), readyState:true (document fully loaded). Returns {matched:true,waitedMs} or {matched:false,timedOut:true,waitedMs}. Use after navigate/click when the next element loads async.",
     inputSchema: {
@@ -374,7 +392,7 @@ const TOOLS = [
 ];
 
 const server = new Server(
-  { name: "treko", version: "1.7.0" },
+  { name: "treko", version: "1.8.0" },
   { capabilities: { tools: {} } }
 );
 

@@ -6,6 +6,17 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.8.0] — 2026-07-05
+
+### Added
+- **`act` tool** — run an ordered list of ops (navigate, waitfor, fill, click, read, …)
+  in one call against the same tab, over one reused connection. Stops at the first
+  failing step by default (`stopOnError:false` to run all). Ideal for known sequences
+  like login flows — fewer round-trips and atomic.
+
+### Requires
+- treko server ≥ 1.12.0.
+
 ## [1.7.0] — 2026-07-05
 
 ### Added
