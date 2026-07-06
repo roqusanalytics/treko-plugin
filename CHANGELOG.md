@@ -6,6 +6,20 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.17.0] — 2026-07-06
+
+### Added
+- **Channel — real-time idle-push (research preview).** The MCP now declares the
+  `experimental['claude/channel']` capability and holds an SSE subscription open to the treko server
+  for its session. When the human points at something in the browser, the server pushes it down the
+  stream and the MCP emits a `notifications/claude/channel` event — so the Point-and-Command comment
+  appears in the session **instantly, even while the agent is idle**, no nudge needed. `instructions`
+  tell the agent to show the comment + `Read` the screenshot before acting.
+- To enable, start Claude Code with `--dangerously-load-development-channels plugin:treko@treko-marketplace`
+  (custom channels aren't on the research-preview allowlist yet). Without it, the notification is dropped
+  silently and the Stop hook remains the fallback — nothing breaks. Requires Claude Code ≥ 2.1.80 and
+  treko server ≥ 1.20.0.
+
 ## [1.16.0] — 2026-07-06
 
 ### Changed

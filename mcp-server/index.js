@@ -455,8 +455,17 @@ const TOOLS = [
 ];
 
 const server = new Server(
-  { name: "treko", version: "1.14.0" },
-  { capabilities: { tools: {} } }
+  { name: "treko", version: "1.17.0" },
+  {
+    // `claude/channel` makes this MCP a Channel: it can push events straight into THIS
+    // running session so a Point-and-Command comment appears on screen instantly, even
+    // while the agent is idle (a Stop hook only fires at turn boundaries; a channel doesn't).
+    capabilities: { tools: {}, experimental: { "claude/channel": {} } },
+    instructions:
+      "Point-and-Command events arrive as <channel source=\"treko\" command=\"...\" element=\"...\" selector=\"...\" url=\"...\" screenshot=\"...\">. " +
+      "The human pointed at that element in the treko browser and wants it acted on. FIRST make it visible: show a short block ([gauta is treko flagship] + command/element/page) and `Read` the screenshot path so the element image renders inline. THEN act on the command in THIS project using the selector/URL. " +
+      "If the element belongs to an external site (not this project's code), still show it but report instead of editing.",
+  }
 );
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
@@ -549,3 +558,62 @@ process.on("beforeExit", releaseSession);
 const transport = new StdioServerTransport();
 await server.connect(transport);
 log(`connected. baseUrl=${BASE_URL} session=${SESSION_ID} logDir=${LOG_DIR}`);
+
+// Channel push — hold an SSE stream open to the treko server for THIS session. When the human
+// points at something in the browser, the server pushes it here and we turn it into a
+// `notifications/claude/channel` event so it lands in this session instantly, even while idle.
+// Only active when Claude Code loaded this MCP as a channel (i.e. started with the channel flag);
+// otherwise the notification is dropped silently and the Stop hook remains the fallback.
+async function pushChannelEvent(item) {
+  if (!item || !item.command) return;
+  const meta = {};
+  if (item.element) meta.element = String(item.element);
+  if (item.selector) meta.selector = String(item.selector);
+  if (item.url) meta.url = String(item.url);
+  if (item.screenshot) meta.screenshot = String(item.screenshot);
+  if (item.cid) meta.cid = String(item.cid);
+  try {
+    await server.notification({
+      method: "notifications/claude/channel",
+      params: { content: String(item.command), meta },
+    });
+    log(`channel push: ${String(item.command).slice(0, 60)}`);
+  } catch (e) {
+    log(`channel push failed: ${e?.message || e}`);
+  }
+}
+
+async function subscribeChannel() {
+  const url = `${BASE_URL}/channel/subscribe?session=${encodeURIComponent(SESSION_ID)}`;
+  for (;;) {
+    try {
+      const resp = await fetch(url, { headers: { Accept: "text/event-stream" } });
+      if (!resp.ok || !resp.body) throw new Error(`subscribe HTTP ${resp.status}`);
+      log(`channel subscribed (session=${SESSION_ID})`);
+      const reader = resp.body.getReader();
+      const dec = new TextDecoder();
+      let buf = "";
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let idx;
+        while ((idx = buf.indexOf("\n\n")) >= 0) {
+          const frame = buf.slice(0, idx);
+          buf = buf.slice(idx + 2);
+          const dataLine = frame.split("\n").find((l) => l.startsWith("data:"));
+          if (!dataLine) continue; // ": connected" / ": hb" heartbeats
+          const payload = dataLine.slice(5).trim();
+          if (!payload) continue;
+          try { await pushChannelEvent(JSON.parse(payload)); } catch { /* ignore malformed frame */ }
+        }
+      }
+    } catch (e) {
+      log(`channel stream lost: ${e?.message || e}; reconnecting in 2s`);
+    }
+    await new Promise((r) => setTimeout(r, 2000)); // reconnect backoff
+  }
+}
+
+// Fire-and-forget; the server auto-starts if not running (ensureServer runs on first tool call).
+subscribeChannel().catch((e) => log(`channel subscribe fatal: ${e?.message || e}`));
