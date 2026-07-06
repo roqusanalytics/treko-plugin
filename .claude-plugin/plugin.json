@@ -1,7 +1,7 @@
 {
   "name": "treko",
   "description": "Browser automation for Claude Code via Treko — real Chrome control (recon, click, fill, navigate, eval, captcha handling) through the Treko HTTP API.",
-  "version": "1.19.0",
+  "version": "1.20.0",
   "author": {
     "name": "Ventura10"
   },

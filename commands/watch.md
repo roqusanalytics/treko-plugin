@@ -1,31 +1,37 @@
 ---
-description: Watch the treko Point-and-Command inbox and execute the commands the human pointed at (run via /loop for live watching)
+description: Live-watch treko flagship — continuously wait for Point-and-Command comments and execute them (universal — works on desktop, CLI, cmux, and Codex)
 ---
 
-Pick up and execute the Point-and-Command requests the human made by pointing at elements
-in the treko Chrome window. This is the "activation" side of the flagship: the command the
-human typed on an element routes back to THIS session (your project) and you act on it.
+Enter a **persistent live watch loop** for treko Point-and-Command. You wait for the human to
+point at an element in the browser and type a command, then you execute it — continuously, so a
+comment made at ANY time (right now, or 5 / 30 minutes from now) is caught. This works in every
+runtime because it is a plain tool call — no Channels, no hooks, no launch flags.
 
-Steps:
+**The loop — repeat until the user interrupts (do NOT stop on your own):**
 
-1. Call `mcp__treko__inbox` — it drains **this session's** queue (the commands the human
-   pointed at on this session's own tab). The response is `{ items, count, project }`.
-2. If `count` is 0: say "📭 Point-and-Command inbox tuščias — laukiu, kol parodysi elementą
-   naršyklėje." and stop this iteration (nothing to do).
-3. Check `project.cwd` — the repo the human is pointing at. If it does **not** match the
-   project you are working in, do NOT edit code; report the mismatch and stop (the command
-   belongs to a different session/project).
-4. For each item `{ command, selector, element, url, rect }`:
-   a. It refers to a real element (`element`, `selector`) on the page at `url`. To see exactly
-      what the human means, use `mcp__treko__navigate` to `url` then `mcp__treko__screenshot`
-      (or `mcp__treko__recon`/`read` scoped to `selector`).
-   b. Locate the component/file in THIS repo that renders that element — search by its visible
-      text, label, or a stable part of the selector.
-   c. Implement `command` as a real code change. Then verify (build/lint, and a treko
-      screenshot of the element if it is a visual change).
-   d. Briefly report: what the human asked, which file(s) you changed, how you verified.
-5. If you handled one or more commands, end with a short summary.
+1. Call `mcp__treko__watch`. It BLOCKS until the human points-and-commands, then returns the
+   command(s) plus the pointed element's screenshot as an image (it renders inline automatically).
+   While it waits it costs no tokens, so idling here is free.
 
-Live watching: run `/loop 8s /treko:watch` — treko's corner launcher must be active in the
-tab (the human clicks the 🎯 button, points at an element, types, Enter). Each loop tick you
-pick up new commands and act on them, all inside this session with full project context.
+2. **If it returned a command:**
+   - The element screenshot is already shown above — glance at it. Then show the human one visible
+     line so they see it arrived: `📩 Gauta iš treko flagship: "<command>" — <element> (<url>)`.
+   - If the element belongs to **THIS project's app**: find the component/file that renders it
+     (search by its visible text, label, or a stable part of the `selector`), implement `command`
+     as a real code change, and verify (build/lint, plus a treko screenshot if it's visual).
+   - If it belongs to an **external site** (not this project's code): show it and report — do NOT
+     edit code.
+   - Briefly report what you did.
+
+3. **If it returned "nothing yet"** (it timed out with no comment): just continue — nothing to do.
+
+4. **ALWAYS call `mcp__treko__watch` again.** Never end the loop yourself. Keep watching so the next
+   comment — whenever it comes — is caught. Stop only when the user interrupts or tells you to stop.
+
+Notes:
+- The human must have flagship active: the 🎯 launcher on the tab, clicked into inspect mode
+  (button turns green, "Aktyvu • rodyk elementą").
+- **No comment is ever lost**: one made in the gap between two `watch` calls is queued and the next
+  `watch` returns it immediately — so re-calling promptly gives continuous coverage.
+- You do **not** need `/loop` — `watch` blocks and you re-call it yourself. (`timeoutMs` defaults to
+  90 s; pass a smaller value on runtimes with short tool timeouts, then just call again.)

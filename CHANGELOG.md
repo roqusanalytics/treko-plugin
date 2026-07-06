@@ -6,6 +6,15 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.20.0] — 2026-07-06
+
+### Changed
+- **`/treko:watch` is now a persistent live loop** built on the `watch` tool. It keeps re-calling
+  `watch` — blocking (free) until the human points-and-commands, acting on each, then watching again —
+  so a comment made at *any* time (now or 30 minutes later) is caught, with no `/loop` and no lost
+  comments (one made between calls is queued and returned by the next). Replaces the old poll-once
+  `inbox` flow. Works on desktop, CLI, cmux, and Codex.
+
 ## [1.19.0] — 2026-07-06
 
 ### Added
