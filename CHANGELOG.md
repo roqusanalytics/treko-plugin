@@ -6,6 +6,21 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.16.0] — 2026-07-06
+
+### Changed
+- **MCP adopts the session id from `CLAUDE_CODE_SESSION_ID` (env) first.** Claude Code sets this
+  variable in the MCP server's environment for CLI, cmux *and* the desktop app, and it equals the
+  canonical session id the Stop hook receives on stdin — so Point-and-Command routes to the exact
+  session that owns the tab, across all launch methods (not just CLI). It's undocumented, so it's
+  treated as best-effort: the resolution order is `TREKO_SESSION` → `CLAUDE_CODE_SESSION_ID` →
+  parent `--session-id` → random `agent-*`. Hosts that set no session var (e.g. Codex) fall back to
+  a random id and route by project dir (`cwd`) as before. Replaces the earlier parent-process-only
+  approach, which missed the desktop app and cmux.
+
+### Requires
+- treko server ≥ 1.19.0.
+
 ## [1.15.0] — 2026-07-06
 
 ### Changed
