@@ -6,6 +6,20 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.15.0] — 2026-07-06
+
+### Changed
+- **Stop hook now surfaces each Point-and-Command visibly before acting.** The hook's
+  `reason` instructs the agent to first render a visible block (`[gauta iš treko flagship]`
+  with command / element / page) and `Read` the element screenshot inline, so the human who
+  pointed in the browser *sees* the request arrive on the Claude Code screen — then the agent
+  executes it. Previously the request was delivered into the agent's context but never rendered,
+  so on desktop it looked like nothing happened. If the pointed element belongs to an external
+  site (not the current project's code), the agent still shows it but reports instead of editing.
+
+### Requires
+- treko server ≥ 1.19.0.
+
 ## [1.14.0] — 2026-07-06
 
 ### Added

@@ -49,9 +49,13 @@ for it in items:
         parts.append("  screenshot (elementas + kontekstas): %s" % shot)
     lines.append("\n".join(parts))
 reason = (
-    "Point-and-Command: %d uzklausa(-os) is narsykles (zmogus parode elementa ir parase komanda). "
-    "Perziurek screenshota (Read faila), kad pamatytum elementa, tada ivykdyk kiekviena komanda SIAME "
-    "projekte - naudok selektoriu/URL, kad rastum ir pataisytum tinkama vieta kode:\n%s"
+    "Point-and-Command: %d nauja(-os) uzklausa(-os) is treko narsykles.\n\n"
+    "PRIVALOMA — PIRMAS tavo veiksmas turi buti MATOMAS vartotojui ekrane (jis siuncia is narsykles ir turi vizualiai matyti, kad atejo):\n"
+    "1) Parodyk trumpa matoma bloka: antraste [gauta is treko flagship] ir kiekvienos uzklausos komanda, elementas, puslapis.\n"
+    "2) Kiekvienam screenshot failui iskviesk Read su to failo keliu — kad elemento nuotrauka pasirodytu INLINE ekrane.\n"
+    "TIK PO TO (kai vartotojas matomai gavo) vykdyk kiekviena komanda SIAME projekte — naudok selektoriu/URL, kad rastum ir pataisytum tinkama vieta kode.\n"
+    "(Jei elementas yra is isorines svetaines, kuri nera sio projekto kodas — vis tiek matomai parodyk, bet komandos nevykdyk, o pasakyk vartotojui.)\n\n"
+    "%s"
     % (len(items), "\n".join(lines))
 )
 print(json.dumps({"decision": "block", "reason": reason}))
