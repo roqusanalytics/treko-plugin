@@ -9,11 +9,13 @@ see its `CHANGELOG.md` for endpoint-level changes.
 ## [1.20.0] — 2026-07-06
 
 ### Changed
-- **`/treko:watch` is now a persistent live loop** built on the `watch` tool. It keeps re-calling
-  `watch` — blocking (free) until the human points-and-commands, acting on each, then watching again —
-  so a comment made at *any* time (now or 30 minutes later) is caught, with no `/loop` and no lost
-  comments (one made between calls is queued and returned by the next). Replaces the old poll-once
-  `inbox` flow. Works on desktop, CLI, cmux, and Codex.
+- **`/treko:watch` now handles one `watch` cycle, designed for `/loop /treko:watch`.** Each run blocks
+  (free) on the `watch` tool until the human points-and-commands, acts on it, then stops — and
+  `/loop` re-invokes it so watching stays alive across comments made minutes apart. A model-driven
+  self-loop proved unreliable (after acting on one comment the model ends its turn and stops calling
+  `watch`), so the harness (`/loop`) now owns the repetition. No comment is lost — one sent between
+  cycles is queued and returned by the next `watch`. Replaces the old poll-once `inbox` flow. Works on
+  desktop, CLI, cmux, and Codex.
 
 ## [1.19.0] — 2026-07-06
 
