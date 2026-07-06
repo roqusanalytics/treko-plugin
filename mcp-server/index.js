@@ -6,7 +6,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { spawn, spawnSync } from "node:child_process";
-import { openSync, mkdirSync } from "node:fs";
+import { openSync, mkdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, basename } from "node:path";
 import { randomUUID } from "node:crypto";
@@ -145,6 +145,37 @@ async function call(method, path, body) {
     throw new Error(`Treko ${method} ${path} returned HTTP ${res.status}: ${detail}`);
   }
   return data;
+}
+
+// watch — block until the human points-and-commands in the browser, then return the command(s)
+// plus the pointed element's screenshot as an image. The wait is an in-process long-poll, so it
+// costs no agent tokens; the agent only spends a turn once a comment actually arrives. Being a plain
+// tool call, it works in EVERY runtime (desktop, CLI, cmux, Codex) — no Channels / hooks / flags.
+async function watchForCommand(a) {
+  const session = a.session || SESSION_ID;
+  const timeoutMs = Math.max(5000, Math.min(a.timeoutMs || 90000, 300000));
+  const started = Date.now();
+  while (Date.now() - started < timeoutMs) {
+    let resp = null;
+    try { resp = await call("POST", "/inbox/poll", { session, cwd: PROJECT_CWD, drain: true, shots: true }); }
+    catch { /* transient; retry next tick */ }
+    const items = resp && Array.isArray(resp.items) ? resp.items : [];
+    if (items.length) {
+      const note = "📩 Gauta is treko flagship. Screenshot rodomas virsuje. Ivykdyk kiekviena komanda SIAME projekte (naudok selektoriu/URL). Jei elementas is isorines svetaines (ne sio projekto kodas) — parodyk ir pasakyk, bet nevykdyk.";
+      const meta = items.map((it) => ({ command: it.command, element: it.element, selector: it.selector, url: it.url, screenshot: it.screenshot }));
+      const shot = items.map((it) => it.screenshot).find(Boolean);
+      if (shot) {
+        try {
+          const data = readFileSync(shot).toString("base64");
+          return { data, mimeType: "image/png", count: items.length, note, items: meta };
+        } catch { /* file unreadable -> text only */ }
+      }
+      const lines = meta.map((m) => `- komanda: "${m.command || ""}"\n  elementas: ${m.element || ""}\n  selektorius: ${m.selector || ""}\n  puslapis: ${m.url || ""}`).join("\n");
+      return `${note}\n\n${lines}`;
+    }
+    await new Promise((r) => setTimeout(r, 1500));
+  }
+  return "Kol kas nauju flagship komentaru nera. Iskviesk `watch` dar karta, kad testum stebeti. (Vartotojas turi aktyvuoti flagship/commander ant tab'o, pazymeti elementa ir parasyti komanda.)";
 }
 
 const tab = {
@@ -297,6 +328,18 @@ const TOOLS = [
       },
     },
     handler: (a) => call("POST", "/inbox/poll", a),
+  },
+  {
+    name: "watch",
+    description: "WAIT for the next Point-and-Command the human makes in the browser, then RETURN it — the command text plus the pointed element's screenshot AS AN IMAGE (rendered inline, exactly like the `screenshot` tool). Blocks until a comment arrives or ~90 s, whichever first; returns immediately when one arrives. This is the universal flagship path: it's a plain tool call, so it works in EVERY runtime (desktop, CLI, cmux, even Codex) — no Channels, no hooks, no launch flags. Waiting costs no tokens. Call it again in a loop to keep watching. The human needs flagship (commander) active on a tab. When it returns a command, act on it in THIS project using the selector/URL; if it returns 'nothing yet', just call `watch` again.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        timeoutMs: { type: "number", description: "Max time to block before returning 'nothing yet' (default 90000). Lower it (e.g. 45000) on runtimes with short tool timeouts; then just call watch again." },
+      },
+    },
+    returnsImage: true,
+    handler: (a) => watchForCommand(a),
   },
   {
     name: "act",
@@ -455,7 +498,7 @@ const TOOLS = [
 ];
 
 const server = new Server(
-  { name: "treko", version: "1.17.0" },
+  { name: "treko", version: "1.19.0" },
   {
     // `claude/channel` makes this MCP a Channel: it can push events straight into THIS
     // running session so a Point-and-Command comment appears on screen instantly, even
@@ -615,5 +658,15 @@ async function subscribeChannel() {
   }
 }
 
-// Fire-and-forget; the server auto-starts if not running (ensureServer runs on first tool call).
-subscribeChannel().catch((e) => log(`channel subscribe fatal: ${e?.message || e}`));
+// Channel push is OPT-IN (set TREKO_CHANNEL=1 when you launch Claude Code with `--channels
+// plugin:treko@...`). Reason: the SSE subscription makes the server sweep drain this session's queue
+// and push it as a channel notification — but on a runtime that ISN'T loaded as a channel (the
+// desktop app, Codex, or a plain session) that notification is dropped silently, which would consume
+// the comment and starve the universal paths (`watch` tool + Stop hook). So by default we don't
+// subscribe: `watch` and the Stop hook deliver everywhere, reliably. Enable this only alongside the
+// channel flag, where the push is actually accepted.
+if (process.env.TREKO_CHANNEL === "1") {
+  subscribeChannel().catch((e) => log(`channel subscribe fatal: ${e?.message || e}`));
+} else {
+  log("channel push off (set TREKO_CHANNEL=1 with --channels to enable); watch tool + Stop hook active");
+}

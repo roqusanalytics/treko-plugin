@@ -6,6 +6,24 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.19.0] — 2026-07-06
+
+### Added
+- **`watch` tool — the universal flagship path (works everywhere, even Codex).** Blocks (in-process
+  long-poll) until the human points-and-commands in the browser, then returns the command text **plus
+  the pointed element's screenshot as an image block** — rendered inline exactly like the `screenshot`
+  tool. Because it's a plain MCP tool call, it works in **every** runtime — desktop, CLI, cmux, and
+  Codex — with no Channels, no hooks, no launch flags. The wait costs no tokens (the agent only spends
+  a turn once a comment arrives). Call it in a loop to watch continuously. This is the answer to "why
+  can treko push a screenshot to the screen but not a flagship comment?" — now it can, the same way.
+
+### Changed
+- **Channel push is now opt-in (`TREKO_CHANNEL=1`).** The SSE subscription made the server drain the
+  session's queue and push it as a `notifications/claude/channel` event — but on a runtime not loaded
+  as a channel (desktop, Codex, plain sessions) that event is dropped silently, which consumed the
+  comment and starved the `watch` tool + Stop hook. The MCP now subscribes only when `TREKO_CHANNEL=1`
+  (set it alongside `--channels`), so the universal paths stay reliable everywhere by default.
+
 ## [1.18.0] — 2026-07-06
 
 ### Added
