@@ -6,6 +6,21 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.18.0] — 2026-07-06
+
+### Added
+- **Stop hook live-catch window — idle-push that also works on the desktop app.** When the human is
+  actively in flagship mode (`window.__trekoCommander.isActive()`, i.e. inspect/pointing mode is on),
+  the Stop hook keeps polling the inbox *in-shell* for a bounded window (`for` loop, default 9×5 s ≈
+  45 s, under the 60 s hook timeout) so a comment made a few seconds later still lands live — no
+  Channels flag needed, so it works on the desktop app where Channels can't be enabled. Empty polling
+  is bash + `curl`, so it costs **zero tokens**; the agent only runs when a comment actually arrives.
+  Gated on `isActive()` (which stays true across sends, since the overlay's `send()` doesn't
+  deactivate), so **normal turns never hang** — commander off ⇒ the hook returns in ~0.1 s. Bounded
+  three ways (the `for` limit, the hook timeout, and the window resetting each turn) so it can never
+  loop forever. Tunable via `TREKO_CATCH_ITERS` / `TREKO_CATCH_SLEEP`.
+- `hooks.json` Stop hook now sets `timeout: 60` so the catch window isn't cut short.
+
 ## [1.17.0] — 2026-07-06
 
 ### Added
