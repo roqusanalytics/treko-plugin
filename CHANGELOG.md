@@ -6,6 +6,82 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.21.0] — 2026-07-07
+
+### Added
+- **Automatic idle-push via an `asyncRewake` Stop hook — the smooth, zero-command flagship path,
+  desktop included.** `hooks/watch-async.sh` runs in the **background** at each turn end (non-blocking,
+  so the session idles normally and the user is never locked out), polls the queue **in-shell (zero
+  tokens)**, and the moment the human points-and-commands it exits **code 2** — which `asyncRewake`
+  turns into an **immediate wake of the idle session**, delivering the command. So a comment made
+  minutes after the last turn just appears — no `/loop`, no command, no Channels flag. Works on
+  desktop, CLI, cmux, and Codex. Bounded (~9 min window, re-armed each turn), single watcher per
+  session (lockfile), and gated on the commander launcher being present so non-treko sessions spawn
+  nothing. Requires Claude Code with `asyncRewake` hook support.
+
+### Changed
+- **The Stop hook is now the async watcher** (`watch-async.sh`, `asyncRewake: true`, `timeout: 570`),
+  replacing the synchronous 45 s live-catch that briefly blocked the turn. `stop-inbox.sh` remains in
+  the repo as the sync fallback but is no longer wired in.
+
+## [1.20.0] — 2026-07-06
+
+### Changed
+- **`/treko:watch` now handles one `watch` cycle, designed for `/loop /treko:watch`.** Each run blocks
+  (free) on the `watch` tool until the human points-and-commands, acts on it, then stops — and
+  `/loop` re-invokes it so watching stays alive across comments made minutes apart. A model-driven
+  self-loop proved unreliable (after acting on one comment the model ends its turn and stops calling
+  `watch`), so the harness (`/loop`) now owns the repetition. No comment is lost — one sent between
+  cycles is queued and returned by the next `watch`. Replaces the old poll-once `inbox` flow. Works on
+  desktop, CLI, cmux, and Codex.
+
+## [1.19.0] — 2026-07-06
+
+### Added
+- **`watch` tool — the universal flagship path (works everywhere, even Codex).** Blocks (in-process
+  long-poll) until the human points-and-commands in the browser, then returns the command text **plus
+  the pointed element's screenshot as an image block** — rendered inline exactly like the `screenshot`
+  tool. Because it's a plain MCP tool call, it works in **every** runtime — desktop, CLI, cmux, and
+  Codex — with no Channels, no hooks, no launch flags. The wait costs no tokens (the agent only spends
+  a turn once a comment arrives). Call it in a loop to watch continuously. This is the answer to "why
+  can treko push a screenshot to the screen but not a flagship comment?" — now it can, the same way.
+
+### Changed
+- **Channel push is now opt-in (`TREKO_CHANNEL=1`).** The SSE subscription made the server drain the
+  session's queue and push it as a `notifications/claude/channel` event — but on a runtime not loaded
+  as a channel (desktop, Codex, plain sessions) that event is dropped silently, which consumed the
+  comment and starved the `watch` tool + Stop hook. The MCP now subscribes only when `TREKO_CHANNEL=1`
+  (set it alongside `--channels`), so the universal paths stay reliable everywhere by default.
+
+## [1.18.0] — 2026-07-06
+
+### Added
+- **Stop hook live-catch window — idle-push that also works on the desktop app.** When the human is
+  actively in flagship mode (`window.__trekoCommander.isActive()`, i.e. inspect/pointing mode is on),
+  the Stop hook keeps polling the inbox *in-shell* for a bounded window (`for` loop, default 9×5 s ≈
+  45 s, under the 60 s hook timeout) so a comment made a few seconds later still lands live — no
+  Channels flag needed, so it works on the desktop app where Channels can't be enabled. Empty polling
+  is bash + `curl`, so it costs **zero tokens**; the agent only runs when a comment actually arrives.
+  Gated on `isActive()` (which stays true across sends, since the overlay's `send()` doesn't
+  deactivate), so **normal turns never hang** — commander off ⇒ the hook returns in ~0.1 s. Bounded
+  three ways (the `for` limit, the hook timeout, and the window resetting each turn) so it can never
+  loop forever. Tunable via `TREKO_CATCH_ITERS` / `TREKO_CATCH_SLEEP`.
+- `hooks.json` Stop hook now sets `timeout: 60` so the catch window isn't cut short.
+
+## [1.17.0] — 2026-07-06
+
+### Added
+- **Channel — real-time idle-push (research preview).** The MCP now declares the
+  `experimental['claude/channel']` capability and holds an SSE subscription open to the treko server
+  for its session. When the human points at something in the browser, the server pushes it down the
+  stream and the MCP emits a `notifications/claude/channel` event — so the Point-and-Command comment
+  appears in the session **instantly, even while the agent is idle**, no nudge needed. `instructions`
+  tell the agent to show the comment + `Read` the screenshot before acting.
+- To enable, start Claude Code with `--dangerously-load-development-channels plugin:treko@treko-marketplace`
+  (custom channels aren't on the research-preview allowlist yet). Without it, the notification is dropped
+  silently and the Stop hook remains the fallback — nothing breaks. Requires Claude Code ≥ 2.1.80 and
+  treko server ≥ 1.20.0.
+
 ## [1.16.0] — 2026-07-06
 
 ### Changed
