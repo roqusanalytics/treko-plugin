@@ -6,6 +6,20 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.12.0] — 2026-07-06
+
+### Added
+- **Stop hook — free, automatic Point-and-Command pickup.** `hooks/stop-inbox.sh` runs
+  when the agent finishes a turn (an event that happens anyway, so zero polling and zero
+  token cost). It drains this project's Point-and-Command queue (resolved by `cwd`) and, if
+  the human pointed at anything, returns `{"decision":"block","reason":…}` so the agent
+  keeps going and executes the commands — no `/loop`, no watcher, no re-prompt. Loop-safe
+  (drains, so it stops when the queue is empty). Idle-only note: a command sent while the
+  agent is fully idle is picked up on the next turn (there is no inbound push in Claude Code).
+
+### Requires
+- treko server ≥ 1.17.0 (adds `cwd`→session resolution for `/inbox/poll`).
+
 ## [1.11.0] — 2026-07-05
 
 Point-and-Command becomes usable end-to-end.
