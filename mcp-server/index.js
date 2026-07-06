@@ -19,7 +19,19 @@ const LOG_FILE = join(LOG_DIR, "server.log");
 // Unique per agent process. Each parallel agent has its own MCP process, so this
 // id isolates it to its own Chrome tab — no more cannibalizing tab "0". Override
 // with TREKO_SESSION to share a tab across processes on purpose.
-const SESSION_ID = process.env.TREKO_SESSION || `agent-${randomUUID().slice(0, 8)}`;
+// Adopt the Claude Code session id as this MCP's treko session, so a Point-and-Command
+// routes back to THIS exact session even when many sessions share one project. Claude Code
+// spawns this MCP as a child of `claude --session-id <UUID>`, so we read the parent's
+// command line; the Stop hook gets the same session_id on stdin → precise routing.
+// Falls back to a random id (e.g. non-Claude hosts, or no --session-id).
+let SESSION_ID = process.env.TREKO_SESSION || `agent-${randomUUID().slice(0, 8)}`;
+if (!process.env.TREKO_SESSION) {
+  try {
+    const out = spawnSync("ps", ["-o", "command=", "-p", String(process.ppid)], { encoding: "utf8" });
+    const m = out.stdout && out.stdout.match(/--session-id[ =]([0-9a-fA-F-]{36})/);
+    if (m) SESSION_ID = m[1];
+  } catch { /* keep random id */ }
+}
 
 // The project this Claude session is working in. Registered with treko so a
 // Point-and-Command the human makes routes back to THIS session/project.
@@ -433,7 +445,7 @@ const TOOLS = [
 ];
 
 const server = new Server(
-  { name: "treko", version: "1.13.0" },
+  { name: "treko", version: "1.14.0" },
   { capabilities: { tools: {} } }
 );
 

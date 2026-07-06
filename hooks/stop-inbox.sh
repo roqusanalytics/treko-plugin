@@ -2,18 +2,30 @@
 # Treko Point-and-Command — Stop hook.
 #
 # Fires when the agent finishes a turn (about to go idle). Pulls any commands the human
-# pointed at in the browser into this session so the agent acts on them — with no polling
-# and no token cost, because this event happens anyway. Resolves the queue by project dir
-# (the hook only knows the cwd, not the random session id; the server maps cwd -> session).
+# pointed at in the browser into THIS session so the agent acts on them — no polling, no
+# token cost, because this event happens anyway.
+#
+# Routes precisely by the Claude session_id (received on stdin): the MCP adopts that same
+# id as its treko session, so with many sessions in one project each drains only its own
+# commands. Falls back to the project dir (cwd) when the id isn't available.
 #
 # If treko isn't running, or nothing is queued, it exits 0 and the turn stops normally.
 
-DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
+INPUT=$(cat 2>/dev/null)
 URL="${TREKO_URL:-http://localhost:3456}"
 
-R=$(curl -sf --max-time 2 -X POST "$URL/inbox/poll" \
+read -r SID DIR <<EOF
+$(printf '%s' "$INPUT" | python3 -c 'import sys,json
+try: d=json.load(sys.stdin)
+except Exception: d={}
+print((d.get("session_id") or "-"), (d.get("cwd") or ""))' 2>/dev/null)
+EOF
+[ "$SID" = "-" ] && SID=""
+[ -z "$DIR" ] && DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
+
+R=$(curl -sf --max-time 3 -X POST "$URL/inbox/poll" \
   -H 'Content-Type: application/json' \
-  -d "{\"cwd\":\"$DIR\",\"drain\":true}" 2>/dev/null) || exit 0
+  -d "{\"session\":\"$SID\",\"cwd\":\"$DIR\",\"drain\":true}" 2>/dev/null) || exit 0
 
 TREKO_INBOX_JSON="$R" python3 -c '
 import os, json, sys

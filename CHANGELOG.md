@@ -6,6 +6,24 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.14.0] — 2026-07-06
+
+### Added
+- **The MCP adopts the Claude session id.** On start it reads its parent process
+  (`ps -o command= -p <ppid>` → `claude --session-id <uuid>`) and uses that uuid as its treko
+  session, so the tab it drives and the Stop hook that drains commands both key off the same
+  id. Falls back to a random `agent-*` id when there's no such parent (e.g. Codex). This is
+  what makes precise per-session routing possible when 5+ sessions share one project.
+
+### Changed
+- **Stop hook routes by the Claude session id.** It now reads `session_id` (and `cwd`) from
+  the hook's stdin JSON and polls `/inbox/poll {session, cwd, drain:true}` — so with many
+  sessions in one project, each turn drains only the commands the human pointed at in *that*
+  session's tab. `cwd` remains the fallback when the id is absent.
+
+### Requires
+- treko server ≥ 1.19.0.
+
 ## [1.13.0] — 2026-07-06
 
 ### Changed
