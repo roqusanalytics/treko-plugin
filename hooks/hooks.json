@@ -15,8 +15,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/stop-inbox.sh\"",
-            "timeout": 60
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/watch-async.sh\"",
+            "asyncRewake": true,
+            "timeout": 570
           }
         ]
       }

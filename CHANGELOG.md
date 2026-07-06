@@ -6,6 +6,24 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.21.0] — 2026-07-07
+
+### Added
+- **Automatic idle-push via an `asyncRewake` Stop hook — the smooth, zero-command flagship path,
+  desktop included.** `hooks/watch-async.sh` runs in the **background** at each turn end (non-blocking,
+  so the session idles normally and the user is never locked out), polls the queue **in-shell (zero
+  tokens)**, and the moment the human points-and-commands it exits **code 2** — which `asyncRewake`
+  turns into an **immediate wake of the idle session**, delivering the command. So a comment made
+  minutes after the last turn just appears — no `/loop`, no command, no Channels flag. Works on
+  desktop, CLI, cmux, and Codex. Bounded (~9 min window, re-armed each turn), single watcher per
+  session (lockfile), and gated on the commander launcher being present so non-treko sessions spawn
+  nothing. Requires Claude Code with `asyncRewake` hook support.
+
+### Changed
+- **The Stop hook is now the async watcher** (`watch-async.sh`, `asyncRewake: true`, `timeout: 570`),
+  replacing the synchronous 45 s live-catch that briefly blocked the turn. `stop-inbox.sh` remains in
+  the repo as the sync fallback but is no longer wired in.
+
 ## [1.20.0] — 2026-07-06
 
 ### Changed
