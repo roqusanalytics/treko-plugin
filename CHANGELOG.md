@@ -6,6 +6,17 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.13.0] — 2026-07-06
+
+### Changed
+- **Stop hook + `inbox` now include an element screenshot.** Each Point-and-Command item
+  carries a `screenshot` path (a PNG of the pointed element + context). The Stop hook tells
+  the agent to view it (Read the file) before acting, so it sees exactly what the human
+  pointed at.
+
+### Requires
+- treko server ≥ 1.18.0.
+
 ## [1.12.0] — 2026-07-06
 
 ### Added

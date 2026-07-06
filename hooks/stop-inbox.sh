@@ -26,13 +26,20 @@ if not items:
     sys.exit(0)
 lines = []
 for it in items:
-    lines.append(
-        "- komanda: \"%s\"\n  elementas: %s\n  selektorius: %s\n  puslapis: %s"
-        % (it.get("command", ""), it.get("element", ""), it.get("selector", ""), it.get("url", ""))
-    )
+    shot = it.get("screenshot")
+    parts = [
+        "- komanda: \"%s\"" % it.get("command", ""),
+        "  elementas: %s" % it.get("element", ""),
+        "  selektorius: %s" % it.get("selector", ""),
+        "  puslapis: %s" % it.get("url", ""),
+    ]
+    if shot:
+        parts.append("  screenshot (elementas + kontekstas): %s" % shot)
+    lines.append("\n".join(parts))
 reason = (
     "Point-and-Command: %d uzklausa(-os) is narsykles (zmogus parode elementa ir parase komanda). "
-    "Ivykdyk kiekviena SIAME projekte - naudok selektoriu/URL, kad rastum ir pataisytum tinkama vieta kode:\n%s"
+    "Perziurek screenshota (Read faila), kad pamatytum elementa, tada ivykdyk kiekviena komanda SIAME "
+    "projekte - naudok selektoriu/URL, kad rastum ir pataisytum tinkama vieta kode:\n%s"
     % (len(items), "\n".join(lines))
 )
 print(json.dumps({"decision": "block", "reason": reason}))

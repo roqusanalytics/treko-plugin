@@ -433,7 +433,7 @@ const TOOLS = [
 ];
 
 const server = new Server(
-  { name: "treko", version: "1.12.0" },
+  { name: "treko", version: "1.13.0" },
   { capabilities: { tools: {} } }
 );
 
