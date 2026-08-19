@@ -82,9 +82,20 @@ poll_and_maybe_deliver && exit 0
 # 2) Gate the live-catch window on flagship being ACTIVELY engaged (inspect mode on), so normal
 #    turns never hang. The overlay object persists (self-heals), so we check isActive(), not mere
 #    existence — true only while the human is in pointing mode, i.e. about to send a comment.
+# Read-only pre-check: a session with no treko tab has no commander either. Skipping the /eval
+# probe in that case keeps the hook from lazily allocating a blank tab for sessions that never
+# used treko (the stray-Chrome-tab bug).
+HAS_TAB=$(curl -sf --max-time 3 "$URL/sessions" 2>/dev/null \
+  | TREKO_SID="$SID" python3 -c 'import os,sys,json
+try: d=json.load(sys.stdin)
+except Exception: print("false"); sys.exit(0)
+sid=os.environ.get("TREKO_SID")
+print("true" if sid and any(s.get("session")==sid for s in d.get("sessions",[])) else "false")' 2>/dev/null)
+[ "$HAS_TAB" = "true" ] || exit 0
+
 CMDR=$(curl -sf --max-time 3 -X POST "$URL/eval" \
   -H 'Content-Type: application/json' \
-  -d "{\"session\":\"$SID\",\"expression\":\"!!(window.__trekoCommander && window.__trekoCommander.isActive && window.__trekoCommander.isActive())\"}" 2>/dev/null \
+  -d "{\"session\":\"$SID\",\"create\":false,\"expression\":\"!!(window.__trekoCommander && window.__trekoCommander.isActive && window.__trekoCommander.isActive())\"}" 2>/dev/null \
   | python3 -c 'import sys,json
 try: print("true" if json.load(sys.stdin).get("result") else "false")
 except Exception: print("false")' 2>/dev/null)
