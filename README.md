@@ -40,6 +40,35 @@ Then run `/reload-plugins` to pick up changes.
 
 Override the Treko URL by editing `.mcp.json` → `mcpServers.treko.env.TREKO_URL`.
 
+## Releasing
+
+**Bump the version in BOTH manifests — they are read by different consumers:**
+
+| File | Read by | Symptom if stale |
+|---|---|---|
+| `.claude-plugin/plugin.json` | the installed plugin itself | plugin reports the wrong version |
+| `.claude-plugin/marketplace.json` | `claude plugin update` / `autoUpdate` | **updates never arrive** — the marketplace keeps offering the old version, so fixes stay unshipped even after they land on `main` |
+
+```bash
+# keep both in sync, then add a CHANGELOG entry
+sed -i '' 's/"version": "1.21.2"/"version": "1.21.3"/' .claude-plugin/plugin.json
+sed -i '' 's/"version": "1.21.2"/"version": "1.21.3"/' .claude-plugin/marketplace.json
+```
+
+Verify before pushing:
+
+```bash
+grep '"version"' .claude-plugin/plugin.json .claude-plugin/marketplace.json
+```
+
+Both lines must show the same number. `marketplace.json` sat at `1.4.0` while `plugin.json`
+had advanced to `1.21.x`, which silently blocked every marketplace update in between.
+
+Server-side changes (endpoints, tab/session behaviour) live in the separate
+[`treko`](https://github.com/roqusanalytics/treko) repo and carry their own version —
+note the minimum required server version in the plugin's `CHANGELOG.md` when a hook or the
+MCP wrapper depends on a new endpoint or request flag.
+
 ## Structure
 
 ```
@@ -51,6 +80,10 @@ treko-plugin/
 │   └── package.json
 ├── skills/treko/SKILL.md    # usage guidance
 ├── commands/surf.md             # /treko:surf slash command
-├── hooks/hooks.json             # SessionStart health check
+├── commands/watch.md            # /treko:watch slash command
+├── hooks/
+│   ├── hooks.json               # SessionStart (API health) + Stop (async watcher)
+│   ├── watch-async.sh           # asyncRewake Point-and-Command watcher
+│   └── stop-inbox.sh            # Stop-hook inbox drain (live-catch window)
 └── README.md
 ```
