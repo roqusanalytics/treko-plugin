@@ -27,9 +27,22 @@ EOF
 [ -z "$DIR" ] && DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
 [ -z "$SID" ] && SID="$DIR"
 
-# Gate: only watch when flagship is available on this session's tab (launcher present). No treko -> nothing.
+# Gate 1 (no side effects): does this session even own a treko tab? A session that never used
+# treko must not get one just because a hook asked about it — probing used to lazily allocate a
+# blank tab on every turn end, which is why stray Chrome tabs kept appearing. `GET /sessions` is
+# read-only, so this stays free of side effects on every server version.
+HAS_TAB=$(curl -sf --max-time 3 "$URL/sessions" 2>/dev/null \
+  | TREKO_SID="$SID" python3 -c 'import os,sys,json
+try: d=json.load(sys.stdin)
+except Exception: print("false"); sys.exit(0)
+sid=os.environ.get("TREKO_SID")
+print("true" if any(s.get("session")==sid for s in d.get("sessions",[])) else "false")' 2>/dev/null)
+[ "$HAS_TAB" = "true" ] || exit 0
+
+# Gate 2: flagship actually available on that tab (launcher present). `create:false` keeps this a
+# passive probe on treko >= 1.20.1; older servers ignore the flag but gate 1 already protected us.
 LAUNCHER=$(curl -sf --max-time 3 -X POST "$URL/eval" -H 'Content-Type: application/json' \
-  -d "{\"session\":\"$SID\",\"expression\":\"!!document.getElementById('__treko_commander___btn')\"}" 2>/dev/null \
+  -d "{\"session\":\"$SID\",\"create\":false,\"expression\":\"!!document.getElementById('__treko_commander___btn')\"}" 2>/dev/null \
   | python3 -c 'import sys,json
 try: print("true" if json.load(sys.stdin).get("result") else "false")
 except Exception: print("false")' 2>/dev/null)

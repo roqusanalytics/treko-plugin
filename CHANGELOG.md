@@ -6,6 +6,18 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.21.1] — 2026-08-19
+
+### Fixed
+- **Stop hooks no longer spawn stray Chrome tabs.** `watch-async.sh` (and `stop-inbox.sh`) gated
+  their watch window with `POST /eval` — but that endpoint lazily allocates a session tab, so the
+  gate itself opened a blank Chrome tab at the end of *every* turn, in every session, including
+  ones that never touched treko. Tabs kept coming back because idle GC closes them after 30 min
+  and the next turn re-created them.
+- Both hooks now pre-check `GET /sessions` (read-only) and exit immediately when this session owns
+  no tab, and send `create: false` on the `/eval` probe. The read-only gate works against any
+  server version; the flag is honoured by treko >= 1.20.1.
+
 ## [1.21.0] — 2026-07-07
 
 ### Added
