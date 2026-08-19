@@ -6,6 +6,19 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.21.2] — 2026-08-19
+
+### Fixed
+- **SessionStart hook no longer launches Chrome.** When the API health check failed, the hook ran
+  `treko start`, whose first step launches a whole Chrome window if none is running — so closing
+  Chrome and opening any Claude Code session (in any project) reopened the browser, even in
+  projects that never use treko. Reproduced with an isolated feedback loop (fake `BROWSER_PATH`
+  logger + dead ports): the old hook invoked Chrome; the new one does not.
+- The hook now gates on `GET /json/version` (the same signal as treko's own `checkCDP`): Chrome
+  down → do nothing (startup defers to the MCP wrapper's `ensureServer()` on the first real treko
+  tool call); Chrome up but API down → start the API as before. Ports respect `API_PORT`/`CDP_PORT`
+  env overrides instead of being hardcoded.
+
 ## [1.21.1] — 2026-08-19
 
 ### Fixed
