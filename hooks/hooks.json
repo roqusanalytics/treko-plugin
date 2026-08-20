@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "[ ! -d \"${CLAUDE_PLUGIN_ROOT}/mcp-server/node_modules\" ] && (cd \"${CLAUDE_PLUGIN_ROOT}/mcp-server\" && npm install --silent >/dev/null 2>&1 && echo '[treko] installed MCP SDK dependencies'); if ! curl -sf \"http://localhost:${API_PORT:-3456}/health\" >/dev/null 2>&1; then if ! curl -sf \"http://localhost:${CDP_PORT:-9222}/json/version\" >/dev/null 2>&1; then : ; elif command -v treko >/dev/null 2>&1; then mkdir -p /tmp/treko-plugin && nohup treko start >/tmp/treko-plugin/server.log 2>&1 & disown; echo '[treko] Chrome already up - starting API in background (logs: /tmp/treko-plugin/server.log)'; else echo '[treko] CLI not found. Install: bun install -g treko'; fi; fi"
+            "command": "[ ! -d \"${CLAUDE_PLUGIN_ROOT}/mcp-server/node_modules\" ] && (cd \"${CLAUDE_PLUGIN_ROOT}/mcp-server\" && npm install --silent >/dev/null 2>&1 && echo '[treko] installed MCP SDK dependencies'); if ! curl -sf \"http://localhost:${API_PORT:-3456}/health\" >/dev/null 2>&1; then if ! curl -sf \"http://localhost:${CDP_PORT:-9222}/json/version\" >/dev/null 2>&1; then : ; elif command -v treko >/dev/null 2>&1; then mkdir -p /tmp/treko-plugin && nohup treko start >/tmp/treko-plugin/server.log 2>&1 & disown; echo '[treko] Chrome already up - starting API in background (logs: /tmp/treko-plugin/server.log)'; else echo '[treko] CLI not found. Install: git clone https://github.com/roqusanalytics/treko && cd treko && bun install && bun link'; fi; fi"
           }
         ]
       }

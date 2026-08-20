@@ -12,7 +12,7 @@ Claude Code plugin that wraps [Treko](https://github.com/roqusanalytics/treko) â
 ## Prerequisites
 
 ```bash
-bun install -g treko
+git clone https://github.com/roqusanalytics/treko && cd treko && bun install && bun link
 treko start              # launches Chrome in debug mode + API server on :3456
 ```
 
