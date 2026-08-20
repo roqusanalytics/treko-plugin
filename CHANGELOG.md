@@ -6,6 +6,23 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.21.4] — 2026-08-20
+
+### Fixed
+- **Skill accuracy pass** (`skills/treko/SKILL.md` + `commands/surf.md`):
+  - Error table's `CLI not found` action told users to run `bun install -g treko` — a command
+    that has always 404'd (treko is not on npm). Now points at clone + `bun link`, matching
+    the README, the hook hint, and treko 2.0.0.
+  - "Tab targeting" claimed every call defaults to tab `"0"`, contradicting "Parallel agents"
+    (the wrapper routes every call to the session's own tab). One source of truth now: omit
+    `tab` → your session's tab; explicit `tab` → index/URL-match resolution.
+  - The Cloudflare screenshot→coords→`captcha{x,y}` sequence was spelled out in three places
+    that had already drifted apart. It is now defined once as the **pixel path** (Cloudflare
+    pattern block); the other two sites point at it.
+  - `/treko:surf` step 1 told the user to run `treko start` manually — contradicting the
+    skill's auto-start contract. The command now just calls `navigate` and lets the wrapper
+    start the server.
+
 ## [1.21.3] — 2026-08-20
 
 ### Fixed
