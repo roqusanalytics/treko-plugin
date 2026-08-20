@@ -6,6 +6,19 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.21.3] — 2026-08-20
+
+### Fixed
+- **Install instructions now point at a command that works.** Both the README and the
+  SessionStart hook's "CLI not found" message told users to run `bun install -g treko` — but
+  treko was never published to the npm registry, so that has always 404'd. They now say
+  `git clone … && bun install && bun link`, matching [treko 2.0.0](https://github.com/roqusanalytics/treko/pull/2),
+  which moved the server/CLI to Bun.
+
+### Note
+- No behavioural change: the MCP wrapper still runs under Node and was verified end-to-end
+  against the Bun-based treko server.
+
 ## [1.21.2] — 2026-08-19
 
 ### Fixed
