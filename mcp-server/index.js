@@ -255,7 +255,7 @@ const TOOLS = [
             required: ["selector", "value"],
           },
         },
-        submit: { type: "boolean", description: "Submit the form after filling." },
+        submit: { type: ["boolean", "string"], description: "Submit after filling: true or 'auto' finds a submit button; 'enter' presses Enter; 'form' dispatches a native submit event; any other string is a CSS selector of the button. On failure the response has submitted:false plus submitError." },
       },
       required: ["fields"],
     },
@@ -489,7 +489,7 @@ const TOOLS = [
       properties: {
         tab,
         keys: { type: "string", description: "String of keys to type (supports specials like 'Enter', 'Tab')." },
-        submit: { type: "boolean" },
+        submit: { type: ["boolean", "string"], description: "true or 'enter' presses Enter after typing; 'tab' presses Tab." },
       },
       required: ["keys"],
     },
