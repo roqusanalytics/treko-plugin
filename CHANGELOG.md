@@ -6,6 +6,17 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.21.5] — 2026-08-26
+
+### Fixed
+- **`fill.submit` and `type.submit` schemas now match the server.** Both were declared
+  `type: "boolean"` while the server expected a string — so agents sent `submit: true`,
+  which (before [treko 2.0.2](https://github.com/roqusanalytics/treko/pull/5)) silently
+  never submitted the form. Both now accept boolean or string and document the real
+  vocabulary: fill — `true`/`'auto'` | `'enter'` | `'form'` | CSS selector; type —
+  `true`/`'enter'` | `'tab'`. Pairs with treko >= 2.0.2, which honours `true` and reports
+  `submitted:false` + `submitError` on failure.
+
 ## [1.21.4] — 2026-08-20
 
 ### Fixed
