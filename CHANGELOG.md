@@ -6,6 +6,15 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.21.6] — 2026-08-26
+
+### Changed
+- **`fill` / `type` gain `typingDelayMs`** — mean pause between keystrokes (server default
+  `TREKO_TYPING_DELAY_MS` = 30 ms, human-paced); `0` = instant. Pairs with
+  [treko 2.1.0](https://github.com/roqusanalytics/treko/pull/6).
+- **`indicator` description updated:** the overlay is opt-in since treko 2.1.0
+  (`TREKO_INDICATOR=1`); the tool still toggles it per tab.
+
 ## [1.21.5] — 2026-08-26
 
 ### Fixed

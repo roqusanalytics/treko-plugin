@@ -256,6 +256,7 @@ const TOOLS = [
           },
         },
         submit: { type: ["boolean", "string"], description: "Submit after filling: true or 'auto' finds a submit button; 'enter' presses Enter; 'form' dispatches a native submit event; any other string is a CSS selector of the button. On failure the response has submitted:false plus submitError." },
+        typingDelayMs: { type: "number", description: "Mean pause between keystrokes in ms (human-paced; default from TREKO_TYPING_DELAY_MS, 30). 0 = instant." },
       },
       required: ["fields"],
     },
@@ -294,7 +295,7 @@ const TOOLS = [
   },
   {
     name: "indicator",
-    description: "Toggle the 'agent is working' overlay — a fine pixel-mosaic shimmer framing the viewport edges — on a tab. It auto-appears when treko navigates a tab; use this to force it on/off (e.g. off before a clean screenshot). pointer-events:none, never blocks the page.",
+    description: "Toggle the 'agent is working' overlay — a fine pixel-mosaic shimmer framing the viewport edges — on a tab. Off by default since treko 2.1.0 (it injects DOM into every page and slowed clicks); set TREKO_INDICATOR=1 on the server to auto-show it on navigate, or use this to turn it on/off for one tab. pointer-events:none, never blocks the page.",
     inputSchema: {
       type: "object",
       properties: {
@@ -490,6 +491,7 @@ const TOOLS = [
         tab,
         keys: { type: "string", description: "String of keys to type (supports specials like 'Enter', 'Tab')." },
         submit: { type: ["boolean", "string"], description: "true or 'enter' presses Enter after typing; 'tab' presses Tab." },
+        typingDelayMs: { type: "number", description: "Mean pause between keystrokes in ms (default from TREKO_TYPING_DELAY_MS, 30). 0 = instant." },
       },
       required: ["keys"],
     },
