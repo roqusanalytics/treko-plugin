@@ -5,7 +5,7 @@ description: Use when you need to browse, scrape, or automate real Chrome (with 
 
 # Treko — Real Chrome Automation
 
-Treko controls the user's actual Chrome instance via CDP, so authenticated sessions, cookies, and extensions are available. All tools are exposed as `mcp__treko__*`.
+Treko drives its own real Chrome (persistent profile, no extensions, no sync) that carries the user's sessions **only for sites the user granted** (`treko setup`). Sessions on other sites are not available — see the error table. All tools are exposed as `mcp__treko__*`.
 
 ## Auto-start behavior
 
@@ -67,6 +67,7 @@ Use `tabs` first when multiple are open to pick the right one.
 
 | Error text contains | Meaning | Action |
 |---|---|---|
+| Site shows a login page although the user is logged in elsewhere | That site was never granted to the robot — treko copies cookies only for sites in `~/.treko/consent.json` (treko >= 2.2.0) | Tell the user: `treko cookies list`, then `treko cookies grant <domain>` (stop treko first) — or log in by hand in the treko window; the persistent profile keeps it. Never ask for the password. |
 | `CLI not found` | Treko CLI not installed (it is not on npm) | Tell the user: `git clone https://github.com/roqusanalytics/treko && cd treko && bun install && bun link` |
 | `did not become healthy ... within` | Server started but never became ready | Suggest checking `/tmp/treko-plugin/server.log`; common causes: Chrome missing, port 3456 taken, permission prompt |
 | `Cannot reach Treko` | Network / socket error to localhost | Call `health` once; if still failing, server likely crashed — retry triggers auto-restart |

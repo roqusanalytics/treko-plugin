@@ -6,6 +6,16 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.21.7] — 2026-09-02
+
+### Changed
+- **Skill and README explain cookie consent** (pairs with
+  [treko 2.2.0](https://github.com/roqusanalytics/treko/pull/7)): the robot's Chrome carries
+  sessions only for sites the user granted via `treko setup` / `treko cookies grant`. New error-table
+  row tells the agent what to do when a site shows a login page — point the user at
+  `treko cookies grant <domain>` or a manual login in the treko window, never ask for a password.
+- Intro no longer claims "extensions are available": the robot's Chrome runs without them.
+
 ## [1.21.6] — 2026-08-26
 
 ### Changed

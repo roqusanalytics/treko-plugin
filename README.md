@@ -36,6 +36,12 @@ claude --plugin-dir /path/to/treko-plugin
 
 Then run `/reload-plugins` to pick up changes.
 
+## Which logins does the robot have?
+
+Only the sites the user granted: `treko cookies list` shows them, `treko cookies grant <domain>`
+adds one (treko >= 2.2.0). Without a grant a site simply shows its login page — the agent should
+ask the user to grant it or log in by hand in the treko window, never type a password.
+
 ## Configuration
 
 Override the Treko URL by editing `.mcp.json` → `mcpServers.treko.env.TREKO_URL`.
