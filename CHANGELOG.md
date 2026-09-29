@@ -6,6 +6,15 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.21.9] — 2026-09-29
+
+### Fixed
+- Point-and-Command delivery messages (async watcher + Stop hook) were written without Lithuanian
+  letters ("uzklausa is treko narsykles"); now proper Lithuanian, header `[gauta iš treko]`
+  (same in the MCP channel instructions). The formatting scripts run with `python3 -X utf8`, so a
+  hook environment without a UTF-8 locale cannot turn a comment into a silently swallowed error.
+  Pairs with treko 2.4.0 (comments from any tab, black-and-gold card).
+
 ## [1.21.8] — 2026-09-29
 
 ### Fixed

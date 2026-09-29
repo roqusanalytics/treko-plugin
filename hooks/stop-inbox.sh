@@ -39,7 +39,7 @@ poll_and_maybe_deliver() {
   resp=$(curl -sf --max-time 4 -X POST "$URL/inbox/poll" \
     -H 'Content-Type: application/json' \
     -d "{\"session\":\"$SID\",\"cwd\":\"$DIR\",\"drain\":true}" 2>/dev/null) || return 1
-  out=$(TREKO_INBOX_JSON="$resp" python3 -c '
+  out=$(TREKO_INBOX_JSON="$resp" python3 -X utf8 -c '
 import os, json, sys
 try:
     d = json.loads(os.environ.get("TREKO_INBOX_JSON", "") or "{}")
@@ -61,12 +61,12 @@ for it in items:
         parts.append("  screenshot (elementas + kontekstas): %s" % shot)
     lines.append("\n".join(parts))
 reason = (
-    "Point-and-Command: %d nauja(-os) uzklausa(-os) is treko narsykles.\n\n"
-    "PRIVALOMA — PIRMAS tavo veiksmas turi buti MATOMAS vartotojui ekrane (jis siuncia is narsykles ir turi vizualiai matyti, kad atejo):\n"
-    "1) Parodyk trumpa matoma bloka: antraste [gauta is treko flagship] ir kiekvienos uzklausos komanda, elementas, puslapis.\n"
-    "2) Kiekvienam screenshot failui iskviesk Read su to failo keliu — kad elemento nuotrauka pasirodytu INLINE ekrane.\n"
-    "TIK PO TO (kai vartotojas matomai gavo) vykdyk kiekviena komanda SIAME projekte — naudok selektoriu/URL, kad rastum ir pataisytum tinkama vieta kode.\n"
-    "(Jei elementas yra is isorines svetaines, kuri nera sio projekto kodas — vis tiek matomai parodyk, bet komandos nevykdyk, o pasakyk vartotojui.)\n\n"
+    "Point-and-Command: %d nauja(-os) užklausa(-os) iš treko naršyklės.\n\n"
+    "PRIVALOMA — PIRMAS tavo veiksmas turi būti MATOMAS vartotojui (jis siunčia iš naršyklės ir turi matyti, kad atėjo):\n"
+    "1) Parodyk trumpą bloką: antraštė [gauta iš treko] ir kiekvienos užklausos komanda, elementas, puslapis.\n"
+    "2) Kiekvienam screenshot failui iškviesk Read su to failo keliu — kad elemento nuotrauka pasirodytų ekrane.\n"
+    "TIK TADA vykdyk kiekvieną komandą ŠIAME projekte — naudok selektorių/URL, kad rastum tinkamą vietą kode.\n"
+    "(Jei elementas iš išorinės svetainės, kuri nėra šio projekto kodas — vis tiek parodyk, bet komandos nevykdyk, o pasakyk vartotojui.)\n\n"
     "%s"
     % (len(items), "\n".join(lines))
 )
