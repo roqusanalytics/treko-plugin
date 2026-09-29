@@ -67,7 +67,8 @@ Use `tabs` first when multiple are open to pick the right one.
 
 | Error text contains | Meaning | Action |
 |---|---|---|
-| Site shows a login page although the user is logged in elsewhere | That site was never granted to the robot — treko copies cookies only for sites in `~/.treko/consent.json` (treko >= 2.2.0) | Tell the user: `treko cookies list`, then `treko cookies grant <domain>` (stop treko first) — or log in by hand in the treko window; the persistent profile keeps it. Never ask for the password. |
+| Error "The human pressed Esc in the treko window…" (HTTP 409) | The human pressed Esc in the treko window to take over (treko >= 2.3.0) | Stop immediately, do not retry, tell the user what you were doing, and continue only when they ask again. |
+| Site shows a login page although the user is logged in elsewhere | That site was never granted to the robot — treko copies cookies only for sites in `~/.treko/consent.json` (treko >= 2.2.0) | Tell the user: `treko cookies list`, then `treko cookies grant <domain>` (after `treko stop`) — or log in by hand in the treko window; the persistent profile keeps it. Never ask for the password. |
 | `CLI not found` | Treko CLI not installed (it is not on npm) | Tell the user: `git clone https://github.com/roqusanalytics/treko && cd treko && bun install && bun link` |
 | `did not become healthy ... within` | Server started but never became ready | Suggest checking `/tmp/treko-plugin/server.log`; common causes: Chrome missing, port 3456 taken, permission prompt |
 | `Cannot reach Treko` | Network / socket error to localhost | Call `health` once; if still failing, server likely crashed — retry triggers auto-restart |
