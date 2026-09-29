@@ -508,7 +508,7 @@ const server = new Server(
     capabilities: { tools: {}, experimental: { "claude/channel": {} } },
     instructions:
       "Point-and-Command events arrive as <channel source=\"treko\" command=\"...\" element=\"...\" selector=\"...\" url=\"...\" screenshot=\"...\">. " +
-      "The human pointed at that element in the treko browser and wants it acted on. FIRST make it visible: show a short block ([gauta is treko flagship] + command/element/page) and `Read` the screenshot path so the element image renders inline. THEN act on the command in THIS project using the selector/URL. " +
+      "The human pointed at that element in the treko browser and wants it acted on. FIRST make it visible: show a short block ([gauta iš treko] + command/element/page) and `Read` the screenshot path so the element image renders inline. THEN act on the command in THIS project using the selector/URL. " +
       "If the element belongs to an external site (not this project's code), still show it but report instead of editing.",
   }
 );

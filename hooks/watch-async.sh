@@ -64,7 +64,7 @@ i=0
 while [ "$i" -lt "$LOOP_MAX" ]; do
   R=$(curl -sf --max-time 4 -X POST "$URL/inbox/poll" -H 'Content-Type: application/json' \
     -d "{\"session\":\"$SID\",\"cwd\":\"$DIR\",\"drain\":true,\"shots\":true}" 2>/dev/null)
-  OUT=$(TREKO_INBOX_JSON="$R" python3 -c '
+  OUT=$(TREKO_INBOX_JSON="$R" python3 -X utf8 -c '
 import os, json, sys
 try: d = json.loads(os.environ.get("TREKO_INBOX_JSON", "") or "{}")
 except Exception: sys.exit(0)
@@ -82,10 +82,10 @@ for it in items:
     if shot: parts.append("  screenshot (elementas + kontekstas): %s" % shot)
     lines.append("\n".join(parts))
 print(
-    "Point-and-Command: %d nauja(-os) uzklausa(-os) is treko narsykles. "
-    "PIRMA parodyk matoma bloka (antraste [gauta is treko flagship] + komanda/elementas/puslapis) ir "
-    "`Read` screenshot faila, kad nuotrauka pasirodytu ekrane. TADA ivykdyk kiekviena komanda SIAME "
-    "projekte (naudok selektoriu/URL). Jei elementas is isorines svetaines (ne sio projekto kodas) - "
+    "Point-and-Command: %d nauja(-os) užklausa(-os) iš treko naršyklės. "
+    "PIRMA parodyk matomą bloką (antraštė [gauta iš treko] + komanda/elementas/puslapis) ir "
+    "`Read` screenshot failą, kad nuotrauka pasirodytų ekrane. TADA įvykdyk kiekvieną komandą ŠIAME "
+    "projekte (naudok selektorių/URL). Jei elementas iš išorinės svetainės (ne šio projekto kodas) — "
     "parodyk ir pasakyk, bet nevykdyk.\n%s" % (len(items), "\n".join(lines))
 )
 ' 2>/dev/null)
