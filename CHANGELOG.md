@@ -6,6 +6,20 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.21.8] — 2026-09-29
+
+### Fixed
+- **MCP "CLI not found" error still said `bun install -g treko`** — the last copy of a command
+  that never worked (treko is not on the npm registry). Now the clone + `bun link` line the hook
+  and skill already use.
+
+### Changed
+- Auto-start notice names the window (teal toolbar, titled "treko") and the exit, `treko stop`,
+  instead of "Chrome may open a new window" (pairs with treko 2.3.0).
+- Skill: consent error row points at `treko stop` instead of "stop treko first".
+- Skill: new error row — "The human pressed Esc…" (409) means the human pressed Esc to take over:
+  stop, do not retry, report, continue only when asked (pairs with treko 2.3.0).
+
 ## [1.21.7] — 2026-09-02
 
 ### Changed

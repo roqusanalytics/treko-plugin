@@ -105,7 +105,7 @@ async function ensureServer() {
   autoStartPromise = (async () => {
     if (!trekoInstalled()) {
       throw new Error(
-        "Treko CLI not found. Install it globally:\n  bun install -g treko\n" +
+        "Treko CLI not found. Install it:\n  git clone https://github.com/roqusanalytics/treko && cd treko && bun install && bun link\n" +
         "Then retry. (Expected on PATH: `treko`.)"
       );
     }
@@ -532,7 +532,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
   try {
     const startInfo = await ensureServer();
     if (startInfo && startInfo.started) {
-      notices.push(`ℹ️ Auto-started Treko server (pid=${startInfo.pid}). Chrome may open a new window.`);
+      notices.push(`ℹ️ Auto-started Treko server (pid=${startInfo.pid}). Its Chrome is the window with the teal toolbar titled "treko"; the human ends it with: treko stop`);
     }
     await registerOnce();   // tie this session to its project so Point-and-Command routes back here
   } catch (err) {
