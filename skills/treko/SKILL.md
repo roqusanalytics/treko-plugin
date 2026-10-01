@@ -22,7 +22,10 @@ The first tool call in a cold session may take 5–15s while Chrome launches. Su
 2. **`dismiss`** — clear cookie banners / modals before interacting.
 3. **`recon`** — map the page: real selectors, forms, overlays, captchas.
 4. **`click` / `fill` / `scroll`** — act on selectors from recon. Never guess.
-5. **`read`** — extract content, optionally scoped by `selector`.
+5. **`read`** — quick look at content, optionally scoped by `selector` (returned inline, text capped).
+   **`scrape`** — the whole page as data (Markdown, metadata, JSON-LD, links, images, tables, `extract`
+   fields) saved to a JSON file; you get the path and a summary. Use it for research, data collection,
+   and anything you will quote or process later — then `Read` only the parts of the file you need.
 6. **`eval`** — fallback for anything structured endpoints don't cover.
 
 Skip 2–3 for trivial tasks (e.g. reading a known static page).
@@ -117,7 +120,15 @@ don't), and a passed wall sets a clearance cookie so the site loads directly nex
 
 **Framework-heavy sites (React/Vue)**: if `click`/`fill` don't register, use `dispatch` with `event: "input"` or `event: "change"` and `reactDebug: true` to inspect handlers.
 
-**Research task**: `navigate` to source → `dismiss` → `read` (full or scoped by selector) → repeat across URLs. Prefer `read` over `recon` when you just need text content.
+**Research task**: `scrape` each source with `url` (one call = navigate + full capture to a JSON file) → work from the saved files. Use `read` for a quick look, `recon` before interacting.
+
+**UI/UX study of landing pages** (inspiration for the user's own pages): `scrape` each page with
+`{"url": "…", "design": true, "onlyMainContent": false}`. The summary gives the section order, palette,
+fonts, type scale, primary CTA and tech; the JSON holds the full tokens and the folder holds desktop/mobile
+screenshots plus a crop per section — `Read` the crops you want to look at. Compare principles across
+pages (section order, CTA placement, density, type scale); never copy a design or its copy 1:1.
+
+**Data from many similar pages** (products, listings, profiles): `scrape` with an `extract` map, e.g. `{"name": "h1", "price": ".price", "images": {"selector": ".gallery img", "attr": "src", "all": true}}` — the fields come back inline and in the file. Check JSON-LD in the file first: schema.org Product/Article data is often the cleanest source.
 
 **Scraping with pagination**: loop `read` → `click` next → `read`, checking `navigated` flag in `click` response.
 
