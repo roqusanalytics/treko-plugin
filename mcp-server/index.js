@@ -212,7 +212,7 @@ const TOOLS = [
   },
   {
     name: "read",
-    description: "Extract readable content (title, sections, notifications, plain text, HTML) from full page or a specific selector.",
+    description: "Quick look: readable content (title, sections, notifications, plain text up to ~4000 chars) returned inline, from the full page or a selector. For full-page content or data to keep, use `scrape`.",
     inputSchema: {
       type: "object",
       properties: {
@@ -221,6 +221,41 @@ const TOOLS = [
       },
     },
     handler: (a) => call("POST", "/read", a),
+  },
+  {
+    name: "scrape",
+    description:
+      "Capture a whole page as data and SAVE it to a JSON file (path returned) — use when you need the full content, " +
+      "not a quick look (that is `read`). Waits, scrolls to load lazy content, keeps the main content (Mozilla Readability; " +
+      "set onlyMainContent:false for the whole page or `selector` for one region) and stores clean Markdown, metadata " +
+      "(title, description, canonical, lang, Open Graph, author, dates), schema.org JSON-LD, headings, links " +
+      "(absolute, de-duplicated, internal/external), images, tables and optional `extract` fields by CSS selector. " +
+      "The response is a short summary + `file`; open the file with Read only for the parts you need. Pass `url` to navigate first. " +
+      "Read in an isolated world — invisible to the site. Works on logged-in pages and while the treko window is minimised.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        tab,
+        url: { type: "string", description: "Navigate here first (same tab), then scrape." },
+        selector: { type: "string", description: "Scrape only this element (e.g. '#results', 'article')." },
+        onlyMainContent: { type: "boolean", description: "Default true: article/main content without menus, footers, sidebars, cookie bars, ads. false = whole body." },
+        excludeSelectors: { type: "array", items: { type: "string" }, description: "Extra CSS selectors to drop (e.g. ['.newsletter', '#comments'])." },
+        scroll: { type: "boolean", description: "Default true: scroll to the end to load lazy/infinite content, then back to the top." },
+        maxScrolls: { type: "number", description: "Scroll steps cap (default 25, max 100)." },
+        waitFor: { type: "string", description: "CSS selector to wait for (up to 10 s) before capturing." },
+        waitMs: { type: "number", description: "Extra settle time after load/scroll (default 300)." },
+        extract: {
+          type: "object",
+          description: "Fields by CSS selector: {\"price\": \".price\", \"images\": {\"selector\": \"img\", \"attr\": \"src\", \"all\": true}}. Returned inline and saved.",
+          additionalProperties: true,
+        },
+        html: { type: "boolean", description: "Also store the scoped HTML (capped 2 MB)." },
+        output: { type: "string", description: "Absolute .json path to write instead of /tmp/treko/scrapes/." },
+        inline: { type: "boolean", description: "Also return the Markdown in the response (capped 30 000 chars) — only for short pages." },
+        design: { type: "boolean", description: "UI/UX study: also capture how the page is built — section map (hero/features/pricing/faq…, layout grid, above-the-fold), design tokens (palette, fonts, type scale, spacing, radii, CSS variables), CTAs, detected tech, and screenshots (desktop + mobile full page, one crop per section). Use with onlyMainContent:false." },
+      },
+    },
+    handler: (a) => call("POST", "/scrape", a),
   },
   {
     name: "click",

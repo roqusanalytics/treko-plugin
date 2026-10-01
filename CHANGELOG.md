@@ -6,6 +6,21 @@ skill, slash command, hook). Follows [Semantic Versioning](https://semver.org/).
 Pairs with the [`treko`](https://github.com/roqusanalytics/treko) server/CLI —
 see its `CHANGELOG.md` for endpoint-level changes.
 
+## [1.23.0] — 2026-10-01
+
+### Added
+- `scrape` gains `design: true` (needs treko 2.7.0): section map, design tokens, CTAs, tech and desktop/mobile
+  + per-section screenshots for UI/UX study. Skill: the landing-page study pattern.
+
+## [1.22.0] — 2026-10-01
+
+### Added
+- **`scrape` tool** (needs treko 2.6.0): the whole page as data saved to a JSON file — Markdown of the
+  main content (Mozilla Readability) or a selector / the whole body, metadata, JSON-LD, headings, links,
+  images, tables and `extract` fields by CSS selector; auto-scroll for lazy content; `url` to navigate
+  first. Returns the file path and a summary so long pages do not flood the context.
+- Skill: when to `scrape` vs `read`, and the research / many-similar-pages patterns.
+
 ## [1.21.9] — 2026-09-29
 
 ### Fixed
